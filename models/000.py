@@ -3,8 +3,6 @@ import logging
 import os
 import rsyslog
 from gluon.contrib.memcache import MemcacheClient
-from gluon.scheduler import Scheduler
-from gluon.storage import Storage
 from gluon.tools import Auth
 from gluon.tools import Mail
 
@@ -102,6 +100,7 @@ def run_ban_hooks(offender):
         hook(offender)
 
 # App config.
+ban_hooks = [ban_remote_addr]
 T.is_writable = False # No language file updates.
 logger = rsyslog.getLogger('app', logging.INFO)
 db = DAL('sqlite://app.db', lazy_tables=True)
@@ -118,26 +117,5 @@ auth.settings.register_onaccept.append(add_server_admin)
 auth.define_tables(signature=True)
 if not db(db.auth_user).isempty():
     auth.settings.actions_disabled.append('register')
-
-# Server admin table.
-db.define_table(
-    'server_admin',
-    Field('auth_user', 'reference auth_user'),
-    Field('receive_ban_notifications', 'boolean'))
-
-# Offender table.
-db.define_table(
-    'auth_offender',
-    Field('attempts', 'integer'),
-    Field('auth_users', 'list:reference auth_user'),
-    Field('banned', 'boolean'),
-    Field('last_attempt', 'datetime'),
-    Field('remote_addr'))
-ban_hooks = [ban_remote_addr]
-
-# SSH access table.
-db.define_table('ssh', Field('addr'))
-
-# Mailer.
 mail = Mail('localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
 auth.settings.mailer = mail
