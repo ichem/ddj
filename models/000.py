@@ -1,4 +1,5 @@
 """ Provide basic globals. """
+import logging
 import os
 import rsyslog
 from gluon.contrib.memcache import MemcacheClient
@@ -102,7 +103,7 @@ def run_ban_hooks(offender):
 
 # App config.
 T.is_writable = False # No language file updates.
-logger = rsyslog.log('web2py')
+logger = rsyslog.getLogger('app', logging.INFO)
 db = DAL('sqlite://app.db', lazy_tables=True)
 cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 session.connect(request, response, db)

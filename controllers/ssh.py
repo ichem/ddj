@@ -22,15 +22,16 @@ def _ondelete(table, row_id):
         response.flash = 'Error deleting address'
 
 def _populate(fake=None):
-    # TODO Fix.
     ufwd = xmlrpclib.ServerProxy(ufwd_url)
-    allowed = ufwd.allowed()
-    if len(allowed) != db(db.ssh).count():
+    rules = ufwd.rules()
+    if len(rules) != db(db.ssh).count():
         db.ssh.truncate()
-        for addr in allowed:
-            parts = addr.split(':')
-            if parts[1] == '22':
-                db.ssh.insert(addr=parts[0])
+        for rule in rules:
+            if (
+                    rule['action'] == 'allow'
+                    and rule['protocol'] == 'tcp'
+                    and rule['dport'] == '22'):
+                db.ssh.insert(addr=rule['src'])
         logger.info('Populated ssh table from ufw data')
 
 @auth.requires_login()
