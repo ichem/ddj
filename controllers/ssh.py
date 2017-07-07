@@ -7,7 +7,7 @@ def _oncreate(form):
     """ Call ufwd to allow a new address to access port 22. """
     try:
         ufwd = xmlrpclib.ServerProxy(ufwd_url)
-        ufwd.allow(form.vars.addr, 'tcp', 22)
+        ufwd.allow(form.vars.addr, 'tcp', '22')
     except:
         logger.exception('ufwd oncreate exception')
         response.flash = 'Error allowing address'
@@ -16,7 +16,7 @@ def _ondelete(table, row_id):
     """ Call ufwd to revoke port 22 access for an address. """
     try:
         ufwd = xmlrpclib.ServerProxy(ufwd_url)
-        ufwd.revoke(db[table][row_id].addr, 'tcp', 22)
+        ufwd.revoke(db[table][row_id].addr, 'tcp', '22')
     except:
         logger.exception('ufwd ondelete exception')
         response.flash = 'Error deleting address'
