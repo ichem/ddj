@@ -1,0 +1,57 @@
+/* DDJ styling */
+body {
+    font-size: 16px;
+}
+.ddj-toc {
+    text-align: center;
+}
+.ddj-toc-current {
+    font-weight: bold;
+}
+a.ddj-toc-link {
+    font-size: 1.2em;
+    color: inherit;
+    text-decoration: none;
+}
+/* Unihan styling */
+.uh-char {
+    font-size: 1.5em;
+}
+a.uh-char-link {
+    color: inherit;
+    text-decoration: none;
+}
+.uh-block {
+    padding-bottom: 1em;
+}
+label.uh-info-label {
+    font-weight: inherit;
+}
+.uh-labeled-chars {
+    text-align: center;
+    padding-right: .75em;
+    padding-bottom: 1em;
+}
+.uh-rotate {
+    -webkit-writing-mode: vertical-lr;
+    writing-mode: vertical-lr;
+}
+
+/* Post thumbnail tweaks. */
+.thumbnail:hover {
+    background-color: whitesmoke;
+}
+a.ddj-thumbnail:hover {
+    text-decoration: none;
+}
+
+/* Standardize form column widths, disappear the third column. */
+td.w2p_fl {
+    width: 35%;
+}
+td.w2p_fw {
+    width: 65%;
+}
+td.w2p_fc {
+    width: 0%;
+}

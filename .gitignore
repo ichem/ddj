@@ -1,0 +1,6 @@
+*.pyc
+cron/*
+databases/*
+erors/*
+sessions/*
+uploads/*
