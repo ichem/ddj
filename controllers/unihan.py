@@ -15,7 +15,6 @@ def dump():
         '_title': response.title}
     response.logo = LI(A(response.title, **attr))
     chars = DIV()
-    pinyin = DIV()
     if auth.user_id:
         requires = IS_NOT_EMPTY()
     else:
@@ -27,22 +26,21 @@ def dump():
         from unihan import string_block
 
         try:
-            chars, pinyin = string_block(
-                form.vars.hanzi_text, form.vars.strip, uhdb)
+            chars = string_block(form.vars.hanzi_text, form.vars.strip, uhdb)
         except:
             logger.exception("Error processing characters: %s" % request.vars)
             chars = DIV('Error processing characters')
-    return {'chars': chars, 'pinyin': pinyin, 'form': form}
+    return {'chars': chars, 'form': form}
 
 @_service.run
 def info(char):
     """ A service to return character info as a block of HTML. """
-    from unihan import char_info
+    from unihan import info_block
 
     try:
         char_id = ord(char.decode('utf-8'))
         row = uhdb.character[char_id]
-        return char_info(row, uhdb)
+        return info_block(row, uhdb)
     except:
         logger.exception("No such character: %s" % char)
     return DIV('Error looking up character info')

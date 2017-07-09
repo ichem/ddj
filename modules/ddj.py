@@ -3,7 +3,7 @@ from gluon import *
 
 def comparison(chapter_number, db, uhdb):
     """ Return an element to compare chapters side by side. """
-    from unihan import char_info_blocks
+    from unihan import string_block
 
     columns = []
     qry = db.chapter.number==chapter_number
@@ -13,7 +13,7 @@ def comparison(chapter_number, db, uhdb):
         # Chapter hanzi
         query = db.verse.chapter==chapter.id
         verse = db(query).select().first()
-        hanzi, pinyin = char_info_blocks(verse.hanzi, True, uhdb)
+        hanzi = string_block(verse.hanzi, True, uhdb)
         hanzi['_class'] = '%s uh-rotate' % hanzi['_class']
         hanzi['_style'] = 'height:%dem;' % (len(hanzi) * 1.5)
 
@@ -62,13 +62,10 @@ def edit_form(chapter, verse, args):
 
 def poem_page(chapter, verse, uhdb, logger):
     """ Return a list of DDJ chapter view elements. """
-    from unihan import char_info_blocks
+    from unihan import string_block
 
     logger.debug('Generating new chapter %i', chapter.number)
     title = DIV(H4(chapter.title), _class='col-md-12')
+    hanzi = DIV(string_block(verse.hanzi, True, uhdb), _class='col-md-12')
     english = DIV(P(verse.en), _class='col-md-12')
-    poem = DIV([title, english], _class='row')
-    left = DIV(poem, _class='col-md-9 pull-right')
-    hanzi, pinyin = char_info_blocks(verse.hanzi, True, uhdb)
-    right = DIV(hanzi, _class='col-md-3 pull-left')
-    return [left, right]
+    return [title, hanzi, english]

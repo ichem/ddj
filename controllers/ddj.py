@@ -55,7 +55,7 @@ def chapter():
             btn = A('Edit',
                 _class='btn btn-default',
                 _href=URL(args=[chrow.number, 'edit']))
-            btn = DIV(btn, _class='col-md-9 pull-left')
+            btn = DIV(btn, _class='col-md-12')
             page.append(btn)
     elif auth.user and len(request.args)==2 and request.args[1]=='edit':
 
