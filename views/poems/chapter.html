@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+{{include 'unihan/infoModal.html'}}
+
+{{block page_links}}
+<link rel="stylesheet" href="{{=URL('static','ddj/ddj.css')}}"/>
+{{end page_links}}
+
+{{block page_js}}
+<script src="{{=URL('static','ddj/infoModal.js')}}"></script>
+{{end page_js}}
+
+{{=poem}}
+{{=links}}

@@ -1,8 +1,8 @@
+import ddj
 from gluon.tools import Service
 
 
 _service = Service()
-md_dir =  '/opt/ddj/book/markdown'
 
 def call():
     session.forget()
@@ -15,6 +15,7 @@ def about():
         import os
         from gluon.contrib.markdown import markdown2
 
+        md_dir =  '/opt/ddj/book/markdown'
         logger.debug('Generating new about page')
         with open(os.path.join(md_dir, 'about.md')) as fd:
             about = markdown2.markdown(fd.read())
@@ -44,11 +45,9 @@ def chapter():
     if len(request.args)==1:
 
         # Generate/cache the poem page.
-        from ddj import poem_page
-
         page = cache.ram(
-            request.args[0],
-            lambda: poem_page(chrow, vrow, uhdb, logger))
+            'ddj-%s' % request.args[0],
+            lambda: ddj.page(chrow, vrow, uhdb, logger))
         if page and auth.user:
 
             # Put an edit button on it.
@@ -60,9 +59,7 @@ def chapter():
     elif auth.user and len(request.args)==2 and request.args[1]=='edit':
 
         # Generate/process the edit form.
-        from ddj import edit_form
-
-        form = edit_form(chrow, vrow, request.args[:1])
+        form = ddj.edit_form(chrow, vrow, request.args[:1])
         if form.process().accepted:
             chrow.update_record(title=form.vars.title)
             data = {
@@ -72,7 +69,8 @@ def chapter():
                 'notes': form.vars.notes,
                 'hanzi': form.vars.hanzi}
             vrow.update_record(**data)
-            cache.ram(request.args[0], None)
+            cache.ram('ddj-%s' % request.args[0], None)
+            cache.ram('poem-%s' % request.args[0], None)
             cache.ram('toc', None)
             redirect(URL(args=request.args[:1]))
 

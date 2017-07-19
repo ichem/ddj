@@ -1,4 +1,4 @@
-# Unihan tables in sqlite db.
+# Unihan tables.
 uhdb = DAL('sqlite:///opt/ddj/unihan10.sqlite', lazy_tables=True)
 uhdb.define_table('character', # ID is the character's codepoint int.
     Field('codepoint'), # String encoding the codepoint, 'U+XXXX'.
@@ -26,7 +26,7 @@ uhdb.define_table('radical', # ID is radical character's codepoint int.
     Field('utf8'),
     migrate=False)
 
-# Library tables in app db.
+# Library tables.
 db.define_table('book',
     Field('title'),
     Field('subtitle'))
@@ -44,13 +44,18 @@ db.define_table('verse',
     Field('publish_en', 'boolean'),
     Field('publish_notes', 'boolean'))
 
-# Blog table in app db.
-db.define_table('post',
-    Field('content', 'text'),
-    Field('description', 'text'),
+# Post tables.
+db.define_table('commentary',
+    Field('title'),
     Field('published', 'datetime'),
-    Field('subtitle'),
-    Field('title'))
+    Field('intro', 'text'),
+    Field('content', 'text'))
+
+db.define_table('poem',
+    Field('chapter', 'reference chapter'),
+    Field('published', 'datetime'),
+    Field('intro_hanzi'),
+    Field('intro_en'))
 
 # Server admin table.
 db.define_table(

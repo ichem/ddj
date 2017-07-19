@@ -7,13 +7,15 @@ def ddj_navbar():
         menu.insert(0, LI('', _class='divider'))
     if request.controller != 'unihan':
         menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
-    if (
-            request.controller != 'ddj'
-            or request.controller == 'ddj' and request.function != 'chapter'):
-        href = default_chapter()
-        menu.insert(0, LI(A('In Progress', _href=href)))
-    if request.controller != 'posts':
-        menu.insert(0, LI(A('Posts', _href=URL('posts', 'index'))))
+    if auth.user_id:
+        if (
+                request.controller != 'ddj'
+                or request.controller == 'ddj'
+                and request.function != 'chapter'):
+            href = default_chapter()
+            menu.insert(0, LI(A('In Progress', _href=href)))
+    if request.controller != 'poems':
+        menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
     if (
             request.controller != 'ddj'
             or request.controller == 'ddj' and request.function != 'about'):
@@ -28,17 +30,17 @@ def ddj_toc():
         '_role': 'button'}
     if request.controller == 'ddj':
         if request.function == 'about':
-            attr['_href'] = URL('posts', 'index')
-            attr['_title'] = 'All Posts'
+            attr['_href'] = URL('poems', 'index')
+            attr['_title'] = 'All Poems'
         else:
             attr['_onclick'] = 'tocModal(event);'
             attr['_title'] = 'In Progress List'
-    elif request.controller == 'posts':
-        attr['_href'] = URL('posts', 'index')
-        attr['_title'] = 'All Posts'
+    elif request.controller == 'poems':
+        attr['_href'] = URL('poems', 'index')
+        attr['_title'] = 'All Poems'
     else:
-        attr['_href'] = URL('posts', 'index')
-        attr['_title'] = 'All Posts'
+        attr['_href'] = URL('poems', 'index')
+        attr['_title'] = 'All Poems'
     response.navbar_toggle = LI(A('道德經', **attr))
 
 def default_chapter():

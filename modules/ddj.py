@@ -60,12 +60,14 @@ def edit_form(chapter, verse, args):
     form.elements('.w2p_fl', replace=None)
     return form
 
-def poem_page(chapter, verse, uhdb, logger):
+def page(chapter, verse, uhdb, logger):
     """ Return a list of DDJ chapter view elements. """
     from unihan import string_block
 
     logger.debug('Generating new chapter %i', chapter.number)
     title = DIV(H4(chapter.title), _class='col-md-12')
-    hanzi = DIV(string_block(verse.hanzi, True, uhdb), _class='col-md-12')
+    hanzi = string_block(verse.hanzi, True, uhdb)
+    hanzi['_style'] = 'padding-bottom:.5em'
+    hanzi = DIV(hanzi, _class='col-md-12')
     english = DIV(P(verse.en), _class='col-md-12')
     return [title, hanzi, english]
