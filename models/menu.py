@@ -1,3 +1,11 @@
+def ddj_chapter():
+    """ Return a URL for the default study app chapter. """
+    if auth.user_id:
+        return URL('ddj', 'chapter', args=['1'])
+    _, published = cache.ram('toc', lambda: toc_maps())
+    if published:
+        return URL('ddj', 'chapter', args=[published.items()[0][0]])
+
 def ddj_navbar():
     """ Add links to auth navbar. """
     response.auth_navbar = auth.navbar(mode='dropdown')
@@ -12,7 +20,7 @@ def ddj_navbar():
                 request.controller != 'ddj'
                 or request.controller == 'ddj'
                 and request.function != 'chapter'):
-            href = default_chapter()
+            href = ddj_chapter()
             menu.insert(0, LI(A('In Progress', _href=href)))
     if request.controller != 'poems':
         menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))

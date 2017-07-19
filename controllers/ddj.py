@@ -66,12 +66,8 @@ def chapter():
     return {'chapter': DIV(page, _class='row')}
 
 def index():
-    """ Redirect to the first published chapter. """
-    if auth.user_id:
-        redirect(URL('ddj', 'chapter', args=['1']))
-    _, published = cache.ram('toc', lambda: toc_maps())
-    if published:
-        redirect(URL('ddj', 'chapter', args=[published.items()[0][0]]))
+    """ Redirect to the default study app chapter. """
+    redirect(ddj_chapter())
 
 @_service.run
 def next(chapter):
