@@ -1,5 +1,5 @@
 def ddj_navbar():
-    """ Add DDJ links to auth navbar. """
+    """ Add links to auth navbar. """
     response.auth_navbar = auth.navbar(mode='dropdown')
     menu = response.auth_navbar.element('.dropdown-menu')
     if auth.user_id:
@@ -16,10 +16,8 @@ def ddj_navbar():
             menu.insert(0, LI(A('In Progress', _href=href)))
     if request.controller != 'poems':
         menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
-    if (
-            request.controller != 'ddj'
-            or request.controller == 'ddj' and request.function != 'about'):
-        menu.insert(0, LI(A('About', _href=URL('ddj', 'about'))))
+    if request.controller != 'about':
+        menu.insert(0, LI(A('About', _href=URL('about', 'index'))))
     if 'Log In' in response.auth_navbar.element('.dropdown-toggle'):
         response.auth_navbar.element('.dropdown-toggle')[0] = 'Menu'
 
@@ -29,15 +27,8 @@ def ddj_toc():
         '_class': 'navbar-brand',
         '_role': 'button'}
     if request.controller == 'ddj':
-        if request.function == 'about':
-            attr['_href'] = URL('poems', 'index')
-            attr['_title'] = 'All Poems'
-        else:
-            attr['_onclick'] = 'tocModal(event);'
-            attr['_title'] = 'In Progress List'
-    elif request.controller == 'poems':
-        attr['_href'] = URL('poems', 'index')
-        attr['_title'] = 'All Poems'
+        attr['_onclick'] = 'tocModal(event);'
+        attr['_title'] = 'In Progress List'
     else:
         attr['_href'] = URL('poems', 'index')
         attr['_title'] = 'All Poems'
