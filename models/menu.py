@@ -34,14 +34,6 @@ def ddj_toc():
         attr['_title'] = 'All Poems'
     response.navbar_toggle = LI(A('道德經', **attr))
 
-def default_chapter():
-    """ Return a URL for the default chapter. """
-    if auth.user_id:
-        return URL('ddj', 'chapter', args=['1'])
-    _, published = cache.ram('toc', lambda: toc_maps())
-    if published:
-        return URL('ddj', 'chapter', args=[published.items()[0][0]])
-
 def toc_maps():
     """ Return a tuple of dicts, both map chapter id to toc links. The first
     dict contains all chapters, the second only has published chapters. """

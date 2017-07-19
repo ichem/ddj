@@ -65,6 +65,14 @@ def chapter():
         raise HTTP(404)
     return {'chapter': DIV(page, _class='row')}
 
+def index():
+    """ Redirect to the first published chapter. """
+    if auth.user_id:
+        redirect(URL('ddj', 'chapter', args=['1']))
+    _, published = cache.ram('toc', lambda: toc_maps())
+    if published:
+        redirect(URL('ddj', 'chapter', args=[published.items()[0][0]]))
+
 @_service.run
 def next(chapter):
     """ Return the number of the next published chapter. """
