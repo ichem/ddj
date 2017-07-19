@@ -145,6 +145,24 @@ def info_block(row, uhdb):
     bullets = DIV(char_bullets(), _class='col-md-12')
     return DIV([blocks, links, bullets], _class='row')
 
+def pinyin_string(chars, uhdb):
+    """ Return a pinyin string for the Unihan chars. """
+    pinyin = u''
+    chars = u' '.join(chars.decode('utf-8').split()) # Normalize whitespace.
+    for char in chars:
+        if char == u' ' and pinyin and not pinyin.endswith(u','):
+            pinyin += u','
+        else:
+            codepoint = ord(char)
+            row = uhdb.character[codepoint]
+            if row:
+                if pinyin:
+                    pinyin += u' '
+                pinyin += row.kMandarin.decode('utf-8')
+            elif pinyin and not pinyin.endswith(u','):
+                pinyin += u','
+    return pinyin.strip(u',')
+
 def string_block(chars, strip, uhdb):
     """ Transform a string of characters into a block of elements. Return
     a DIVs of clickable info-block elements. """

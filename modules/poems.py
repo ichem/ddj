@@ -41,6 +41,7 @@ def _thumb(row, cls, title=None):
 
 def chapter(row, db, uhdb):
     """ Return a row DIV for a poem chapter. """
+    from unihan import pinyin_string
     from unihan import string_block
 
     if not row:
@@ -57,6 +58,9 @@ def chapter(row, db, uhdb):
         raise Exception('Bad ddj formatting')
     for stanza in range(0, len(hanzi_stanzas)):
         content.append(string_block(hanzi_stanzas[stanza], True, uhdb))
+        pinyin = pinyin_string(hanzi_stanzas[stanza], uhdb)
+        content.append(
+            DIV(pinyin, _style='font-style:italic;font-size:1.12em;'))
         content.append(P(en_stanzas[stanza], _style='font-size:1.12em;'))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
     return DIV(column, _class='row')
