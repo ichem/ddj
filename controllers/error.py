@@ -1,7 +1,7 @@
 def page_not_found():
     parts = request.vars.requested_uri.split('/')
-    if len(parts) > 3 and parts[2] == 'ddj':
-        redirect(ddj_chapter())
+    if len(parts) > 3 and parts[2] == 'studies':
+        redirect(default_study())
     response.title = 'Page not found'
     logger.info(
         '404 %s from %s', request.vars.requested_uri,

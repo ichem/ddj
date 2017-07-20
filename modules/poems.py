@@ -55,7 +55,7 @@ def chapter(row, db, uhdb):
     en_stanzas = verse.en.split('\r\n\r\n')
     content = []
     if len(hanzi_stanzas) != len(en_stanzas):
-        raise Exception('Bad ddj formatting')
+        raise Exception('Bad study formatting')
     for stanza in range(0, len(hanzi_stanzas)):
         content.append(string_block(hanzi_stanzas[stanza], True, uhdb))
         pinyin = pinyin_string(hanzi_stanzas[stanza], uhdb)

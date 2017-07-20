@@ -16,10 +16,10 @@ function tocModal(ev) {
         });
     };
     var current = window.location.href.substr(window.location.href.lastIndexOf('/') + 1)
-    $('.modal-title').html('In Progress');
+    $('.modal-title').html('Studies');
     $('.modal-body').html('Looking up in-progress list');
     $.ajax({
-        url: '/ddj/call/run/toc/' + current,
+        url: '/studies/call/run/toc/' + current,
         timeout: 3000
     }).done(function(html) {
         setHTML(html);

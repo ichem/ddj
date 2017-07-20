@@ -1,4 +1,5 @@
 {{extend 'layout.html'}}
+{{include 'studies/toc.html'}}
 {{include 'unihan/info.html'}}
 
 {{block page_links}}
@@ -6,8 +7,9 @@
 {{end page_links}}
 
 {{block page_js}}
+<script src="{{=URL('static','ddj/studiesToc.js')}}"></script>
+<script src="{{=URL('static','ddj/studiesNav.js')}}"></script>
 <script src="{{=URL('static','ddj/unihanInfo.js')}}"></script>
 {{end page_js}}
 
-{{=chars}}
-{{=form}}
+{{=chapter}}

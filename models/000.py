@@ -110,6 +110,7 @@ session.secure()
 auth = Auth(
     db, propagate_extension='', controller='auth',
     secure=True, url_index=URL('default', 'index'))
+auth.settings.actions_disabled.append('request_reset_password')
 auth.settings.login_onfail.append(lambda form: ban_event('failed login'))
 auth.settings.reset_password_onvalidation.append(
     lambda form: ban_event('password reset'))
@@ -119,3 +120,4 @@ if not db(db.auth_user).isempty():
     auth.settings.actions_disabled.append('register')
 mail = Mail('localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
 auth.settings.mailer = mail
+auth.settings.logout_next = URL(args=request.args(0))

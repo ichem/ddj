@@ -1,4 +1,4 @@
-import ddj
+import studies
 from gluon.tools import Service
 
 
@@ -26,8 +26,8 @@ def chapter():
 
         # Generate/cache the poem page.
         page = cache.ram(
-            'ddj-%s' % request.args[0],
-            lambda: ddj.page(chrow, vrow, uhdb, logger))
+            'study-%s' % request.args[0],
+            lambda: studies.page(chrow, vrow, uhdb, logger))
         if page and auth.user:
 
             # Put an edit button on it.
@@ -39,7 +39,7 @@ def chapter():
     elif auth.user and len(request.args)==2 and request.args[1]=='edit':
 
         # Generate/process the edit form.
-        form = ddj.edit_form(chrow, vrow, request.args[:1])
+        form = studies.edit_form(chrow, vrow, request.args[:1])
         if form.process().accepted:
             chrow.update_record(title=form.vars.title)
             data = {
@@ -49,15 +49,13 @@ def chapter():
                 'notes': form.vars.notes,
                 'hanzi': form.vars.hanzi}
             vrow.update_record(**data)
-            cache.ram('ddj-%s' % request.args[0], None)
+            cache.ram('study-%s' % request.args[0], None)
             cache.ram('poem-%s' % request.args[0], None)
             cache.ram('toc', None)
             redirect(URL(args=request.args[:1]))
 
         # Generate the comparison and stick it on the page too.
-        from ddj import comparison
-
-        hanzi = comparison(request.args[0], db, uhdb)
+        hanzi = studies.comparison(request.args[0], db, uhdb)
         left = DIV(hanzi, _class='col-md-3 pull-left')
         right = DIV(form, _class='col-md-9 pull-left')
         page = [left, right]
@@ -66,8 +64,8 @@ def chapter():
     return {'chapter': DIV(page, _class='row')}
 
 def index():
-    """ Redirect to the default study app chapter. """
-    redirect(ddj_chapter())
+    """ Redirect to the default studies chapter. """
+    redirect(default_study())
 
 @_service.run
 def next(chapter):
@@ -80,7 +78,7 @@ def next(chapter):
     if auth.user:
         return candidate
     else:
-        _, published = cache.ram('toc', lambda: toc_maps())
+        _, published = cache.ram('toc', lambda: studies_toc())
         while candidate != int(chapter):
             if candidate in published:
                 return candidate
@@ -98,7 +96,7 @@ def previous(chapter):
     if auth.user:
         return candidate
     else:
-        _, published = cache.ram('toc', lambda: toc_maps())
+        _, published = cache.ram('toc', lambda: studies_toc())
         while candidate != int(chapter):
             if candidate in published:
                 return candidate
@@ -108,14 +106,14 @@ def previous(chapter):
 @_service.run
 def toc(chapter):
     """ Return a table of contents element. """
-    links, published = cache.ram('toc', lambda: toc_maps())
+    links, published = cache.ram('toc', lambda: studies_toc())
     if auth.user:
         toc_map = links
     else:
         toc_map = published
     try:
         link = toc_map[int(chapter)]
-        link[0]['_class'] += ' ddj-toc-current'
+        link[0]['_class'] += ' studies-toc-current'
     except:
         pass
-    return DIV(toc_map.values(), _class='ddj-toc')
+    return DIV(toc_map.values(), _class='studies-toc')
