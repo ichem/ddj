@@ -33,13 +33,18 @@ def chapter():
         poem = cache.ram(
             'poem-%s' % request.args[0],
             lambda: poems.chapter(row, db, uhdb))
+        study = ''
+        if auth.user_id:
+            study = A(
+                'Study version',
+                _href=URL('studies', 'chapter', args=[row.chapter.number]))
         links = cache.ram(
             'links-%s' % request.args[0],
             lambda: poems.links(row, db))
     except:
         logger.exception('Bad chapter: %s', request.args(0))
         raise HTTP(404)
-    return {'poem': poem, 'links': links}
+    return {'poem': poem, 'study': study, 'links': links}
 
 def page():
     try:

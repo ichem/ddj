@@ -16,7 +16,7 @@ function tocModal(ev) {
         });
     };
     var current = window.location.href.substr(window.location.href.lastIndexOf('/') + 1)
-    $('.modal-title').html('Studies');
+    $('.modal-title').html('Chapter Studies');
     $('.modal-body').html('Looking up in-progress list');
     $.ajax({
         url: '/studies/call/run/toc/' + current,

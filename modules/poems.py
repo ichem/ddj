@@ -51,19 +51,14 @@ def chapter(row, db, uhdb):
     title = H3(row.chapter.title)
     subtitle = H4('Chapter %i' % row.chapter.number)
     published = H5(row.published.strftime(date_format))
-    hanzi_stanzas = verse.hanzi.split('\r\n\r\n')
-    en_stanzas = verse.en.split('\r\n\r\n')
+    stanzas = verse.en.split('\r\n\r\n')
     content = []
-    if len(hanzi_stanzas) != len(en_stanzas):
-        raise Exception('Bad study formatting')
-    for stanza in range(0, len(hanzi_stanzas)):
-        content.append(string_block(hanzi_stanzas[stanza], True, uhdb))
-        pinyin = pinyin_string(hanzi_stanzas[stanza], uhdb)
-        content.append(
-            DIV(pinyin, _style='font-style:italic;font-size:1.12em;'))
-        content.append(P(en_stanzas[stanza], _style='font-size:1.12em;'))
+    import rsyslog
+    for stanza in stanzas:
+        rsyslog.getLogger('argh').info(stanza)
+        content.append(P(XML(stanza.replace('\r\n', '<br />'))))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
-    return DIV(column, _class='row')
+    return DIV(column, _class='row', _style='font-size:1.12em;')
 
 def grid(db):
     createargs = editargs = viewargs = {

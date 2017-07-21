@@ -18,9 +18,10 @@ def app_navbar():
     if auth.user_id:
         menu.insert(0, LI(A('SSH', _href=URL('ssh', 'index'))))
         menu.insert(0, LI('', _class='divider'))
-        menu.insert(0, LI(A('Studies', _href=URL('studies', 'index'))))
     if request.controller != 'unihan':
         menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
+    if auth.user_id and request.controller != 'studies':
+        menu.insert(0, LI(A('Studies', _href=URL('studies', 'index'))))
     if request.controller != 'poems':
         menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
     if request.controller != 'about':
