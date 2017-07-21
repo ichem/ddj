@@ -57,20 +57,5 @@ db.define_table('poem',
     Field('intro_hanzi'),
     Field('intro_en'))
 
-# Server admin table.
-db.define_table(
-    'server_admin',
-    Field('auth_user', 'reference auth_user'),
-    Field('receive_ban_notifications', 'boolean'))
-
-# Offender table.
-db.define_table(
-    'auth_offender',
-    Field('attempts', 'integer'),
-    Field('auth_users', 'list:reference auth_user'),
-    Field('banned', 'boolean'),
-    Field('last_attempt', 'datetime'),
-    Field('remote_addr'))
-
 # SSH access table.
 db.define_table('ssh', Field('addr'))

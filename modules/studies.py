@@ -63,11 +63,15 @@ def edit_form(chapter, verse, args):
 def page(chapter, verse, uhdb, logger):
     """ Return a list of DDJ chapter view elements. """
     from unihan import string_block
+    from unihan import pinyin_string
 
     logger.debug('Generating new chapter %i', chapter.number)
     title = DIV(H4(chapter.title), _class='col-md-12')
     hanzi = string_block(verse.hanzi, True, uhdb)
-    hanzi['_style'] = 'padding-bottom:.5em'
+    hanzi['_style'] = 'padding-bottom:0.5em;'
     hanzi = DIV(hanzi, _class='col-md-12')
+    pinyin = pinyin_string(verse.hanzi, uhdb)
+    pinyin = DIV(P(pinyin), _class='col-md-12')
+    pinyin['_style'] = 'font-style:italic;'
     english = DIV(P(verse.en), _class='col-md-12')
-    return [title, hanzi, english]
+    return [title, hanzi, pinyin, english]
