@@ -8,7 +8,7 @@ def app_logo():
         attr['_title'] = 'Studies'
     else:
         attr['_href'] = URL('poems', 'index')
-        attr['_title'] = 'All Poems'
+        attr['_title'] = 'Poems'
     response.navbar_toggle = LI(A('道德經', **attr))
 
 def app_navbar():

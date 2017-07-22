@@ -8,7 +8,7 @@ from gluon.tools import Mail
 
 
 def auth_buttons(form):
-    """ Buttons for auth forms. """
+    """ Buttons for auth forms.  Called from view. """
     if request.args(0) == 'login':
         if 'register' not in auth.settings.actions_disabled:
             url_vars = None
@@ -21,13 +21,7 @@ def auth_buttons(form):
             form.add_button(T('Lost Password'), url, _class='btn btn-default')
 
 def auth_navbar():
-    """ Set response.auth_navbar.  Called from the layout. """
-
-    # Navbar might have been defined elsewhere
-    if not response.auth_navbar:
-        response.auth_navbar = auth.navbar(mode='dropdown')
-
-    # Fix orphaned link.
+    """ Fix response.auth_navbar.  Called from view. """
     menu = response.auth_navbar.element('.dropdown-menu')
     if menu:
         links = menu.elements('a')
@@ -35,7 +29,7 @@ def auth_navbar():
             response.auth_navbar = LI(links[0], _class='dropdown')
 
 def auth_title():
-    """ Page title for auth form pages. """
+    """ Page title for auth form pages. Called from view. """
     if request.args(0) == 'register':
         return T('Sign Up')
     if request.args(0) == 'login':
@@ -44,11 +38,18 @@ def auth_title():
         return T(request.args(0).replace('_', ' ').title())
     return ''
 
-def auth_event(event):
-    """ Callback to log auth events. """
-    addr = request.env.remote_addr
-    email = request.post_vars.email
-    logger.warning('Auth event %s from %s %s', event, addr, email)
+def log(event):
+    """ Log event / send email to first reg'd user. """
+    subject = '%s event on %s' % (event, request.env.server_name)
+    msg = '%s' % request.env.remote_addr
+    logger.warning('%s from %s', subject,  msg)
+    mailer = Mail(
+        'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
+    admin = db(db.auth_user).select().first()
+    if admin and admin.email:
+        mailer.send(admin.email, subject, msg)
+    else:
+        logger.error('Error finding app admin email address')
 
 # App config.
 T.is_writable = False # No language file updates.
@@ -64,9 +65,5 @@ auth.define_tables(signature=True)
 if not db(db.auth_user).isempty():
     auth.settings.actions_disabled.append('register')
 auth.settings.actions_disabled.append('request_reset_password')
-auth.settings.login_onfail.append(lambda form: auth_event('failed login'))
-auth.settings.logout_next = URL(args=request.args(0))
-#auth.settings.mailer = Mail(
-#    'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
-auth.settings.reset_password_onvalidation.append(
-    lambda form: auth_event('password reset'))
+auth.settings.login_onfail.append(lambda form: log('Failed login'))
+auth.settings.logout_next = URL(args=request.args)

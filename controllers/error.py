@@ -1,9 +1,4 @@
 def page_not_found():
-    parts = request.vars.requested_uri.split('/')
-    if len(parts) > 3 and parts[2] == 'studies':
-        redirect(default_study())
     response.title = 'Page not found'
-    logger.info(
-        '404 %s from %s', request.vars.requested_uri,
-        request.env.remote_addr)
+    log('404 %s' % request.vars.requested_uri)
     return {'message': response.title}

@@ -53,9 +53,7 @@ def chapter(row, db, uhdb):
     published = H5(row.published.strftime(date_format))
     stanzas = verse.en.split('\r\n\r\n')
     content = []
-    import rsyslog
     for stanza in stanzas:
-        rsyslog.getLogger('argh').info(stanza)
         content.append(P(XML(stanza.replace('\r\n', '<br />'))))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
     return DIV(column, _class='row', _style='font-size:1.12em;')
