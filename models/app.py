@@ -38,10 +38,10 @@ def auth_title():
         return T(request.args(0).replace('_', ' ').title())
     return ''
 
-def log(event):
-    """ Log event / send email to first reg'd user. """
+def log(event, details=None):
+    """ Log event / send email to app admin. """
     subject = '%s event on %s' % (event, request.env.server_name)
-    msg = '%s' % request.env.remote_addr
+    msg = '%s\n%s' % (request.env.remote_addr, details or '')
     logger.warning('%s from %s', subject,  msg)
     mailer = Mail(
         'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
