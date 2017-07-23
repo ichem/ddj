@@ -40,22 +40,30 @@ def _thumb(row, cls, title=None):
     thumbnail = DIV(anchor, _class='thumbnail')
     return DIV(thumbnail, _class=cls)
 
-def chapter(row, db, uhdb):
-    """ Return a row DIV for a poem chapter. """
+def chapter(poem, db, uhdb):
+    """ Return a bootstrap row for a poem row. """
     from unihan import pinyin_string
     from unihan import string_block
 
-    if not row:
+    if not poem:
         raise Exception('No such poem')
-    qry = ((db.verse.book==1) & (db.verse.chapter==row.chapter))
+    qry = ((db.verse.book==1) & (db.verse.chapter==poem.chapter))
     verse = db(qry).select().first()
-    title = H3(row.chapter.title)
-    subtitle = H4('Chapter %i' % row.chapter.number)
-    published = H5(row.published.strftime(date_format))
+    title = H3(poem.chapter.title)
+    subtitle = H4('Chapter %i' % poem.chapter.number)
+    published = H5(poem.published.strftime(date_format))
     stanzas = verse.en.split('\r\n\r\n')
     content = []
     for stanza in stanzas:
         content.append(P(XML(stanza.replace('\r\n', '<br />'))))
+    link = P(
+        A(
+            I('Go to the study version'),
+            _href=URL('studies', 'chapter', args=[poem.chapter.number]),
+            _style='color:inherit;',
+            _title='Study version'),
+        _style='font-size:0.9em;padding-top:1em')
+    content.append(P(link))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
     return DIV(column, _class='row', _style='font-size:1.12em;')
 
@@ -165,14 +173,3 @@ def pager(page_size, db):
     nav = TAG.nav(ul, **{'_aria-label': '...'})
     column = DIV(nav, _class='col-sm-4')
     return DIV(column, _class='row')
-
-def study_link(row, user):
-    if not user:
-        return ''
-    link = A(
-        I('Go to the study version'),
-        _href=URL('studies', 'chapter', args=[row.chapter.number]),
-        _style='color:inherit;',
-        _title='Study version')
-    column = DIV(link, _class=poem_class)
-    return DIV(column, _class='row', _style='padding-top:1em;')

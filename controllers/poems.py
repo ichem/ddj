@@ -26,21 +26,20 @@ def index():
 
 def chapter():
     try:
-        row = db(db.poem.chapter==request.args(0)).select().first()
-        if not row:
+        prow = db(db.poem.chapter==request.args(0)).select().first()
+        if not prow:
             raise HTTP(404)
-        response.title = '道德經 Chapter %i' % row.chapter.number
+        response.title = '道德經 Chapter %i' % prow.chapter.number
         poem = cache.ram(
             'poem-%s' % request.args[0],
-            lambda: poems.chapter(row, db, uhdb))
+            lambda: poems.chapter(prow, db, uhdb))
         links = cache.ram(
             'links-%s' % request.args[0],
-            lambda: poems.links(row, db))
-        study = poems.study_link(row, auth.user)
+            lambda: poems.links(prow, db))
     except:
         logger.exception('Bad chapter: %s', request.args(0))
         raise HTTP(404)
-    return {'poem': poem, 'study': study, 'links': links}
+    return {'poem': poem, 'links': links}
 
 def page():
     try:

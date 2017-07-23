@@ -13,32 +13,39 @@ def chapter():
     a side-by-side comparison of chapters across all versions of the DDJ
     in the library. """
     try:
-        chrow = db.chapter[request.args[0]]
-        vrow = db.verse[request.args[0]]
+        chrow = db.chapter[request.args(0)]
+        vrow = db.verse[request.args(0)]
     except:
         raise HTTP(404)
     if not chrow or not vrow:
         raise HTTP(404)
-    if not auth.user and not vrow.publish_en:
-        raise HTTP(404)
     response.title = '道德經 %i %s' % (chrow.number, chrow.title or '')
+        
+    # The study display.
     if len(request.args)==1:
 
-        # Generate/cache the poem page.
+        # Publish impicitly if there's a corresponding poem.
+        prow = None
+        if not vrow.publish_en:
+            prow = db(db.poem.chapter==chrow)
+
+        # Cached study page.
         page = cache.ram(
             'study-%s' % request.args[0],
-            lambda: studies.page(chrow, vrow, db, uhdb))
-        if page and auth.user:
+            lambda: studies.page(chrow, vrow, prow, db, uhdb))
 
-            # Put an edit button on it.
+        # Put an edit button on it. Depends on auth, do not cache.
+        if page and auth.user:
             btn = A('Edit',
                 _class='btn btn-default',
                 _href=URL(args=[chrow.number, 'edit']))
             btn = DIV(btn, _class='col-md-12')
             page.append(btn)
+
+    # The edit form.
     elif auth.user and len(request.args)==2 and request.args[1]=='edit':
 
-        # Generate/process the edit form.
+        # Define and process the form.
         form = studies.edit_form(chrow, vrow, request.args[:1])
         if form.process().accepted:
             chrow.update_record(title=form.vars.title)

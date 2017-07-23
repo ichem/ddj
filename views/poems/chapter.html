@@ -1,14 +1,8 @@
 {{extend 'layout.html'}}
-{{include 'unihan/info.html'}}
 
 {{block page_links}}
 <link rel="stylesheet" href="{{=URL('static','ddj/app.css')}}"/>
 {{end page_links}}
 
-{{block page_js}}
-<script src="{{=URL('static','ddj/unihanInfo.js')}}"></script>
-{{end page_js}}
-
 {{=poem}}
-{{=study}}
 {{=links}}
