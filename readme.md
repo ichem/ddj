@@ -6,7 +6,8 @@ and to publish my interpretations
 thereof.
 
 The app contains examples
+of how to use the [unihan](https://github.com/tessercat/unihan) database,
 of how Python interpreters might share a common logger
 using the [rsyslog module](https://github.com/tessercat/rsyslog),
-or manipulate firewall rules
-using the [ufwd XML-RPC server](https://github.com/tessercat/ufwd).
+and of how to use the [ufwd XML-RPC server](https://github.com/tessercat/ufwd)
+to manipulate firewall rules on localhost.
