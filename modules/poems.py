@@ -4,6 +4,7 @@ from gluon import DIV
 from gluon import H3
 from gluon import H4
 from gluon import H5
+from gluon import I
 from gluon import IS_IN_SET
 from gluon import LI
 from gluon import P
@@ -39,7 +40,7 @@ def _thumb(row, cls, title=None):
     thumbnail = DIV(anchor, _class='thumbnail')
     return DIV(thumbnail, _class=cls)
 
-def chapter(row, db, uhdb):
+def chapter(row, db, uhdb, user):
     """ Return a row DIV for a poem chapter. """
     from unihan import pinyin_string
     from unihan import string_block
@@ -55,6 +56,13 @@ def chapter(row, db, uhdb):
     content = []
     for stanza in stanzas:
         content.append(P(XML(stanza.replace('\r\n', '<br />'))))
+    if user:
+        content.append(P(
+            A(
+                I('Study version'),
+                _href=URL('studies', 'chapter', args=[row.chapter.number]),
+                _style='font-size:0.9em;color:inherit;'),
+            _style='padding-top:0.5em'))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
     return DIV(column, _class='row', _style='font-size:1.12em;')
 

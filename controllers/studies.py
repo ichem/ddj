@@ -27,7 +27,7 @@ def chapter():
         # Generate/cache the poem page.
         page = cache.ram(
             'study-%s' % request.args[0],
-            lambda: studies.page(chrow, vrow, uhdb, logger))
+            lambda: studies.page(chrow, vrow, db, uhdb))
         if page and auth.user:
 
             # Put an edit button on it.

@@ -32,19 +32,14 @@ def chapter():
         response.title = '道德經 Chapter %i' % row.chapter.number
         poem = cache.ram(
             'poem-%s' % request.args[0],
-            lambda: poems.chapter(row, db, uhdb))
-        study = ''
-        if auth.user_id:
-            study = A(
-                'Study version',
-                _href=URL('studies', 'chapter', args=[row.chapter.number]))
+            lambda: poems.chapter(row, db, uhdb, auth.user))
         links = cache.ram(
             'links-%s' % request.args[0],
             lambda: poems.links(row, db))
     except:
         logger.exception('Bad chapter: %s', request.args(0))
         raise HTTP(404)
-    return {'poem': poem, 'study': study, 'links': links}
+    return {'poem': poem, 'links': links}
 
 def page():
     try:
