@@ -5,7 +5,7 @@ def app_logo():
         '_role': 'button'}
     if request.controller == 'studies':
         attr['_onclick'] = 'tocModal(event);'
-        attr['_title'] = 'Studies'
+        attr['_title'] = 'Chapter Studies'
     else:
         attr['_href'] = URL('poems', 'index')
         attr['_title'] = 'Poems'
