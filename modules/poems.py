@@ -40,7 +40,7 @@ def _thumb(row, cls, title=None):
     thumbnail = DIV(anchor, _class='thumbnail')
     return DIV(thumbnail, _class=cls)
 
-def chapter(row, db, uhdb, user):
+def chapter(row, db, uhdb):
     """ Return a row DIV for a poem chapter. """
     from unihan import pinyin_string
     from unihan import string_block
@@ -56,13 +56,6 @@ def chapter(row, db, uhdb, user):
     content = []
     for stanza in stanzas:
         content.append(P(XML(stanza.replace('\r\n', '<br />'))))
-    if user:
-        content.append(P(
-            A(
-                I('Study version'),
-                _href=URL('studies', 'chapter', args=[row.chapter.number]),
-                _style='font-size:0.9em;color:inherit;'),
-            _style='padding-top:0.5em'))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
     return DIV(column, _class='row', _style='font-size:1.12em;')
 
@@ -172,3 +165,14 @@ def pager(page_size, db):
     nav = TAG.nav(ul, **{'_aria-label': '...'})
     column = DIV(nav, _class='col-sm-4')
     return DIV(column, _class='row')
+
+def study_link(row, user):
+    if not user:
+        return ''
+    link = A(
+        I('Go to the study version'),
+        _href=URL('studies', 'chapter', args=[row.chapter.number]),
+        _style='color:inherit;',
+        _title='Study version')
+    column = DIV(link, _class=poem_class)
+    return DIV(column, _class='row', _style='padding-top:1em;')

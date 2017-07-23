@@ -32,14 +32,15 @@ def chapter():
         response.title = '道德經 Chapter %i' % row.chapter.number
         poem = cache.ram(
             'poem-%s' % request.args[0],
-            lambda: poems.chapter(row, db, uhdb, auth.user))
+            lambda: poems.chapter(row, db, uhdb))
         links = cache.ram(
             'links-%s' % request.args[0],
             lambda: poems.links(row, db))
+        study = poems.study_link(row, auth.user)
     except:
         logger.exception('Bad chapter: %s', request.args(0))
         raise HTTP(404)
-    return {'poem': poem, 'links': links}
+    return {'poem': poem, 'study': study, 'links': links}
 
 def page():
     try:
