@@ -25,8 +25,9 @@ def chapter():
     if len(request.args)==1:
 
         # Publish impicitly if there's a corresponding poem.
-        prow = None
-        if not vrow.publish_en:
+        if vrow.publish_en:
+            prow = True
+        else:
             prow = db(db.poem.chapter==vrow.chapter).select().first()
 
         # Cached study page.

@@ -65,7 +65,9 @@ def chapter(poem, db, uhdb):
         _style='font-size:0.9em;padding-top:1em')
     content.append(P(link))
     column = DIV(title, subtitle, published, *content, _class=poem_class)
-    return DIV(column, _class='row', _style='font-size:1.12em;')
+    return DIV(
+        column, _class='row',
+        _style='font-size:1.12em;white-space:nowrap;')
 
 def grid(db):
     createargs = editargs = viewargs = {
