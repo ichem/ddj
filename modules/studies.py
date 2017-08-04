@@ -65,14 +65,42 @@ def page(chapter, verse, db, uhdb):
     from unihan import string_block
     from unihan import pinyin_string
 
-    title = DIV(H4(chapter.title), _class='col-md-12')
-    hanzi = string_block(verse.hanzi, True, uhdb)
-    hanzi['_style'] = 'padding-bottom:0.5em;'
-    hanzi = DIV(hanzi, _class='col-md-12')
-    pinyin = pinyin_string(verse.hanzi, uhdb)
-    pinyin = DIV(P(pinyin), _class='col-md-12')
-    pinyin['_style'] = 'font-style:italic;'
-    english = DIV(P(verse.en), _class='col-md-12')
+    # Formatted stanzas.
+    blocks = []
+    content = None
+    hanzi_blocks = verse.hanzi.split('\r\n\r\n')
+    en_blocks = verse.en.split('\r\n\r\n')
+    if len(hanzi_blocks) > 1 and len(hanzi_blocks) == len(en_blocks):
+        for block_count in range(0, len(hanzi_blocks)):
+            hanzi_lines = hanzi_blocks[block_count].split('\r\n')
+            en_lines = en_blocks[block_count].split('\r\n')
+            if len(hanzi_lines) > 0 and len(hanzi_lines) == len(en_lines):
+                for line_count in range(0, len(hanzi_lines)):
+                    hanzi = string_block(hanzi_lines[line_count], True, uhdb)
+                    pinyin = pinyin_string(hanzi_lines[line_count], uhdb)
+                    en = en_lines[line_count]
+                    block = DIV(hanzi, I(pinyin), P(en))
+                    blocks.append(block)
+                block['_style'] = 'padding-bottom:1em;'
+            else:
+                blocks = []
+                break
+        if blocks:
+            content = DIV(blocks, _class='col-md-12')
+
+    # Three big unformatted blocks.
+    if not content:
+        hanzi = string_block(verse.hanzi, True, uhdb)
+        hanzi['_style'] = 'padding-bottom:0.5em;'
+        blocks.append(DIV(hanzi, _class='col-md-12'))
+        pinyin = pinyin_string(verse.hanzi, uhdb)
+        pinyin = DIV(P(pinyin), _class='col-md-12')
+        pinyin['_style'] = 'font-style:italic;'
+        blocks.append(pinyin)
+        blocks.append(DIV(P(verse.en), _class='col-md-12'))
+        content = DIV(blocks)
+
+    # Link to published version.
     link = ''
     if db(db.poem.chapter==verse.chapter).select().first():
         link = A(
@@ -81,4 +109,7 @@ def page(chapter, verse, db, uhdb):
             _style='color:inherit;',
             _title='Published version')
         link = DIV(link, _class='col-md-12', _style='padding-bottom:1em;')
-    return [title, hanzi, pinyin, english, link]
+
+    # Put it all together.
+    title = DIV(H4(chapter.title), _class='col-md-12')
+    return [title, content, link]

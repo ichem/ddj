@@ -24,8 +24,6 @@ def chapter():
     # The study display.
     if len(request.args)==1:
 
-        # Publish impicitly if there's a corresponding poem.
-
         # Cached study page.
         page = cache.ram(
             'study-%s' % request.args[0],
