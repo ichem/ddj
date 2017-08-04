@@ -25,15 +25,11 @@ def chapter():
     if len(request.args)==1:
 
         # Publish impicitly if there's a corresponding poem.
-        if vrow.publish_en:
-            prow = True
-        else:
-            prow = db(db.poem.chapter==vrow.chapter).select().first()
 
         # Cached study page.
         page = cache.ram(
             'study-%s' % request.args[0],
-            lambda: studies.page(chrow, vrow, prow, db, uhdb))
+            lambda: studies.page(chrow, vrow, db, uhdb))
 
         # Put an edit button on it. Depends on auth, do not cache.
         if page and auth.user:

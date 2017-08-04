@@ -60,7 +60,7 @@ def edit_form(chapter, verse, args):
     form.elements('.w2p_fl', replace=None)
     return form
 
-def page(chapter, verse, poem, db, uhdb):
+def page(chapter, verse, db, uhdb):
     """ Return a list of DDJ chapter view elements. """
     from unihan import string_block
     from unihan import pinyin_string
@@ -74,7 +74,7 @@ def page(chapter, verse, poem, db, uhdb):
     pinyin['_style'] = 'font-style:italic;'
     english = DIV(P(verse.en), _class='col-md-12')
     link = ''
-    if poem:
+    if db(db.poem.chapter==verse.chapter).select().first():
         link = A(
             I('Go to the published version'),
             _href=URL('poems', 'chapter', args=[chapter.number]),
