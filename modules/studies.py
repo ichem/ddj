@@ -100,7 +100,7 @@ def page(chapter, verse, db, uhdb):
         blocks.append(DIV(P(verse.en), _class='col-md-12'))
         content = DIV(blocks)
 
-    # Link to published version.
+    # Link to English-only version.
     link = ''
     if db(db.poem.chapter==verse.chapter).select().first():
         link = A(

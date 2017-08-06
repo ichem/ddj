@@ -43,14 +43,29 @@ def chapter():
         # Define and process the form.
         form = studies.edit_form(chrow, vrow, request.args[:1])
         if form.process().accepted:
-            chrow.update_record(title=form.vars.title)
-            data = {
+
+            # Get verse data from the form.
+            vdata = {
                 'publish_en': form.vars.publish_english,
                 'en': form.vars.english,
                 'publish_notes': form.vars.publish_notes,
                 'notes': form.vars.notes,
                 'hanzi': form.vars.hanzi}
-            vrow.update_record(**data)
+
+            # Update the published date on changes to title/en/hanzi.
+            if (
+                    chrow.title != form.vars.title
+                    or vrow.en != form.vars.english
+                    or vrow.hanzi != form.vars.hanzi):
+                prow = db(db.poem.chapter==vrow.chapter).select().first()
+                if prow:
+                    import datetime
+                    prow.update_record(published=datetime.datetime.now())
+                    logger.info('Updated %s publish date', prow.chapter)
+
+            # Update records, clear cache and go.
+            chrow.update_record(title=form.vars.title)
+            vrow.update_record(**vdata)
             cache.ram('study-%s' % request.args[0], None)
             cache.ram('poem-%s' % request.args[0], None)
             cache.ram('toc', None)
