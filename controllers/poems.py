@@ -1,8 +1,6 @@
 import poems
 
 
-_page_size = 9
-
 def call():
     session.forget()
     return _service()
@@ -13,12 +11,8 @@ def index():
         logger.error('Bad index: %s, %s', request.args, request.vars)
         raise HTTP(404)
     try:
-        idx = cache.ram(
-            'poems-1',
-            lambda: poems.index(0, _page_size, db))
-        pager = cache.ram(
-            'poems_pager-1',
-            lambda: poems.pager(_page_size, db))
+        idx = cache.ram('poems-1', lambda: poems.index(0, db))
+        pager = cache.ram('poems_pager-1', lambda: poems.pager(db))
     except:
         logger.exception('Bad index: %s', request.args(0))
         raise HTTP(404)
@@ -46,10 +40,10 @@ def page():
         response.title = '道德經 Page %s' % request.args(0)
         idx = cache.ram(
             'poems-%s' % request.args(0),
-            poems.index(int(request.args(0)), _page_size, db))
+            lambda: poems.index(int(request.args(0)), db))
         pager = cache.ram(
             'poem_pager-%s' % request.args(0),
-            poems.pager(_page_size, db))
+            lambda: poems.pager(db))
     except:
         logger.exception('Bad page: %s', request.args(0))
         raise HTTP(404)

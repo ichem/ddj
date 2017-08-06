@@ -21,6 +21,7 @@ from gluon import xmlescape
 date_format = '%B %Y'
 index_class =  'col-xs-12 col-sm-6 col-md-4'
 poem_class = 'col-xs-12 col-sm-10 col-md-8'
+page_size = 9
 
 def _thumb(row, cls, title=None):
     """ Return a column DIV thumbnail. """
@@ -93,7 +94,7 @@ def grid(db):
         viewargs=viewargs)
     return grid
 
-def index(page_number, page_size, db):
+def index(page_number, db):
     """ Return a row DIV of a page of poems. """
     limitby = ((page_number-1)*page_size, (page_number)*page_size)
     orderby = db.poem.chapter
@@ -126,7 +127,7 @@ def links(poem, db):
         _class='row',
         _style='padding-top: 2.5em;')
 
-def pager(page_size, db):
+def pager(db):
     """ Return a row DIV for a pager. """
     from gluon import current
     import math
@@ -143,35 +144,33 @@ def pager(page_size, db):
     else:
         current_page = 1
 
-    # Older/left.
-    next_page = current_page + 1
-    if next_page > page_count:
-        left_href = '#'
-        left_class = 'next disabled'
-    else:
-        left_href = URL('poems', 'page', args=[str(next_page)])
-        left_class = 'next'
-    left_span = SPAN(xmlescape(u'\u2192'), **{'_aria-hidden': 'true'})
-    left_anchor = A('Older Posts ', left_span, _href=left_href)
-    left_li = LI(left_anchor, _class=left_class)
-
-    # Newer/right.
+    # Previous/left.
     prev_page = current_page - 1
     if prev_page < 1:
-        right_href = '#'
-        right_class = 'previous disabled'
-    elif prev_page == 1:
-        right_href = URL('poems', 'index')
-        right_class = 'previous'
+        left_href = '#'
+        left_class = 'previous disabled'
     else:
-        right_href = URL('poems', 'page', args=[str(prev_page)])
-        right_class = 'previous'
-    right_span = SPAN(xmlescape(u'\u2190'), **{'_aria-hidden': 'true'})
-    right_anchor = A(right_span, ' Newer Posts', _href=right_href)
+        left_href = URL('poems', 'page', args=[str(prev_page)])
+        left_class = 'previous'
+    left_span = SPAN(xmlescape(u'\u4E0B'), **{'_aria-hidden': 'true'})
+    left_anchor = A(left_span, _href=left_href)
+    left_li = LI(left_anchor, _class=left_class)
+
+    # Next/right.
+    next_page = current_page + 1
+    if next_page > page_count:
+        right_href = '#'
+        right_class = 'next disabled'
+    elif next_page == 1:
+        right_href = URL('poems', 'index')
+        right_class = 'next'
+    else:
+        right_href = URL('poems', 'page', args=[str(next_page)])
+        right_class = 'next'
+    right_span = SPAN(xmlescape(u'\u4E0A'), **{'_aria-hidden': 'true'})
+    #right_anchor = A('Next ', right_span, _href=right_href)
+    right_anchor = A(right_span, _href=right_href)
     right_li = LI(right_anchor, _class=right_class)
 
     # Together.
-    ul = UL(left_li, right_li, _class='pager')
-    nav = TAG.nav(ul, **{'_aria-label': '...'})
-    column = DIV(nav, _class='col-sm-4')
-    return DIV(column, _class='row')
+    return UL(left_li, right_li, _class='pager')
