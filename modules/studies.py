@@ -104,10 +104,10 @@ def page(chapter, verse, db, uhdb):
     link = ''
     if db(db.poem.chapter==verse.chapter).select().first():
         link = A(
-            I('Go to the English-only version'),
+            I('Go to the English version'),
             _href=URL('poems', 'chapter', args=[chapter.number]),
             _style='color:inherit;',
-            _title='English-only version')
+            _title='English version')
         link = DIV(link, _class='col-md-12', _style='padding-bottom:1em;')
 
     # Put it all together.
