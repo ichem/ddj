@@ -55,8 +55,7 @@ def chapter():
             # Update the published date on changes to title/en/hanzi.
             if (
                     chrow.title != form.vars.title
-                    or vrow.en != form.vars.english
-                    or vrow.hanzi != form.vars.hanzi):
+                    or vrow.en != form.vars.english):
                 prow = db(db.poem.chapter==vrow.chapter).select().first()
                 if prow:
                     import datetime
