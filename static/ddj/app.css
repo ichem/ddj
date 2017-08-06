@@ -38,6 +38,13 @@ label.uh-info-label {
 }
 
 /* Thumbnail tweaks. */
+.row.display-flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+.thumbnail {
+    height: 90%;
+}
 .thumbnail:hover {
     background-color: whitesmoke;
 }

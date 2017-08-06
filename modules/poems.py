@@ -18,7 +18,7 @@ from gluon import XML
 from gluon import xmlescape
 
 
-date_format = '%A, %B %e, %Y'
+date_format = '%B %Y'
 index_class =  'col-xs-12 col-sm-6 col-md-4'
 poem_class = 'col-xs-12 col-sm-10 col-md-8'
 
@@ -88,7 +88,7 @@ def grid(db):
         editargs=editargs,
         fields=fields,
         maxtextlengths=maxtextlengths,
-        orderby=~db.poem.published,
+        orderby=db.poem.chapter,
         searchable=False,
         viewargs=viewargs)
     return grid
@@ -96,29 +96,29 @@ def grid(db):
 def index(page_number, page_size, db):
     """ Return a row DIV of a page of poems. """
     limitby = ((page_number-1)*page_size, (page_number)*page_size)
-    orderby = ~db.poem.published
+    orderby = db.poem.chapter
     thumbs = []
     for row in db(db.poem.id>0).select(limitby=limitby, orderby=orderby):
         thumbs.append(_thumb(row, index_class))
     if not thumbs:
         raise Exception('No such page')
-    return DIV(thumbs, _class='row')
+    return DIV(thumbs, _class='row display-flex')
 
 def links(poem, db):
     """ Return a row DIV of prev/next poems. """
     thumbs = []
 
-    # Older.
-    qry = db.poem.published < poem.published
-    older = db(qry).select(limitby=(0,1), orderby=~db.poem.published)
+    # Previous.
+    qry = db.poem.chapter < poem.chapter
+    older = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
     if older:
-        thumbs.append(_thumb(older.first(), poem_class, 'Older'))
+        thumbs.append(_thumb(older.first(), poem_class, 'Previous'))
 
-    # Newer
-    qry = db.poem.published > poem.published
-    newer = db(qry).select(limitby=(0,1), orderby=db.poem.published)
+    # Next.
+    qry = db.poem.chapter > poem.chapter
+    newer = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
     if newer:
-        thumbs.append(_thumb(newer.first(), poem_class, 'Newer'))
+        thumbs.append(_thumb(newer.first(), poem_class, 'Next'))
 
     # Bootstrap.
     return DIV(
