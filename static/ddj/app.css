@@ -52,6 +52,12 @@ a.ddj-thumbnail:hover {
     text-decoration: none;
 }
 
+/* Nav tweaks. */
+a.ddj-nav {
+    color: inherit;
+    font-weight: bold;
+}
+
 /* Standardize form column widths, disappear the third column. */
 td.w2p_fl {
     width: 35%;

@@ -109,17 +109,17 @@ def links(poem, db):
     """ Return a row DIV of prev/next poems. """
     thumbs = []
 
-    # Previous.
-    qry = db.poem.chapter < poem.chapter
-    older = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
-    if older:
-        thumbs.append(_thumb(older.first(), poem_class, 'Previous'))
-
     # Next.
     qry = db.poem.chapter > poem.chapter
     newer = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
     if newer:
         thumbs.append(_thumb(newer.first(), poem_class, 'Next'))
+
+    # Previous.
+    qry = db.poem.chapter < poem.chapter
+    older = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
+    if older:
+        thumbs.append(_thumb(older.first(), poem_class, 'Previous'))
 
     # Bootstrap.
     return DIV(
@@ -149,12 +149,15 @@ def pager(db):
     if prev_page < 1:
         left_href = '#'
         left_class = 'previous disabled'
+    elif prev_page == 1:
+        left_href = URL('poems', 'index')
+        left_class = 'previous'
     else:
         left_href = URL('poems', 'page', args=[str(prev_page)])
         left_class = 'previous'
-    left_span = SPAN(xmlescape(u'\u4E0B'), **{'_aria-hidden': 'true'})
-    left_anchor = A(left_span, _href=left_href)
-    left_li = LI(left_anchor, _class=left_class)
+    left_span = SPAN(xmlescape(u'\u4e0a'), **{'_aria-hidden': 'true'})
+    left_anchor = A(left_span, _class='ddj-nav', _href=left_href)
+    left_li = LI(left_anchor, _class=left_class, _title='Previous Page')
 
     # Next/right.
     next_page = current_page + 1
@@ -167,10 +170,9 @@ def pager(db):
     else:
         right_href = URL('poems', 'page', args=[str(next_page)])
         right_class = 'next'
-    right_span = SPAN(xmlescape(u'\u4E0A'), **{'_aria-hidden': 'true'})
-    #right_anchor = A('Next ', right_span, _href=right_href)
-    right_anchor = A(right_span, _href=right_href)
-    right_li = LI(right_anchor, _class=right_class)
+    right_span = SPAN(xmlescape(u'\u4e0b'), **{'_aria-hidden': 'true'})
+    right_anchor = A(right_span, _class='ddj-nav', _href=right_href)
+    right_li = LI(right_anchor, _class=right_class, _title='Next Page')
 
     # Together.
     return UL(left_li, right_li, _class='pager')

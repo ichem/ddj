@@ -13,6 +13,7 @@ def index():
     try:
         idx = cache.ram('poems-1', lambda: poems.index(0, db))
         pager = cache.ram('poems_pager-1', lambda: poems.pager(db))
+        pager = TAG.nav(pager, **{'_aria-label': '...'})
     except:
         logger.exception('Bad index: %s', request.args(0))
         raise HTTP(404)
@@ -44,6 +45,7 @@ def page():
         pager = cache.ram(
             'poem_pager-%s' % request.args(0),
             lambda: poems.pager(db))
+        pager = TAG.nav(pager, **{'_aria-label': '...'})
     except:
         logger.exception('Bad page: %s', request.args(0))
         raise HTTP(404)
