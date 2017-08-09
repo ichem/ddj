@@ -70,11 +70,11 @@ def page(chapter, verse, db, uhdb):
     content = None
     hanzi_blocks = verse.hanzi.split('\r\n\r\n')
     en_blocks = verse.en.split('\r\n\r\n')
-    if len(hanzi_blocks) > 1 and len(hanzi_blocks) == len(en_blocks):
+    if len(hanzi_blocks) and len(hanzi_blocks) == len(en_blocks):
         for block_count in range(0, len(hanzi_blocks)):
             hanzi_lines = hanzi_blocks[block_count].split('\r\n')
             en_lines = en_blocks[block_count].split('\r\n')
-            if len(hanzi_lines) > 0 and len(hanzi_lines) == len(en_lines):
+            if len(hanzi_lines) and len(hanzi_lines) == len(en_lines):
                 for line_count in range(0, len(hanzi_lines)):
                     hanzi = string_block(hanzi_lines[line_count], True, uhdb)
                     pinyin = pinyin_string(hanzi_lines[line_count], uhdb)
