@@ -19,8 +19,11 @@ def chapter():
         raise HTTP(404)
     if not chrow or not vrow:
         raise HTTP(404)
+    if chrow.book != 1 or vrow.book != 1:
+        raise HTTP(404)
+
     response.title = '道德經 %i %s' % (chrow.number, chrow.title or '')
-        
+
     # The study display.
     if len(request.args)==1:
 
