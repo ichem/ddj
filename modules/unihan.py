@@ -159,7 +159,8 @@ def pinyin_string(chars, uhdb):
                 if pinyin:
                     pinyin += u' '
                 if row.kMandarin:
-                    pinyin += row.kMandarin.decode('utf-8')
+                    mandarin = row.kMandarin.split()
+                    pinyin += mandarin[0].decode('utf-8')
                 else:
                     pinyin += '???'
             elif pinyin and not pinyin.endswith(u','):
