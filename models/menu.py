@@ -6,6 +6,14 @@ def app_logo():
     if request.controller == 'studies':
         attr['_onclick'] = 'tocModal(event);'
         attr['_title'] = 'Chapter Studies'
+    elif request.controller == 'poems' and request.function == 'chapter':
+        page = (int(request.args(0)) + 8) / 9
+        if page == 1:
+            attr['_href'] = URL('poems', 'index')
+            attr['_title'] = 'Poems'
+        else:
+            attr['_href'] = URL('poems', 'page', args=[str(page)])
+            attr['_title'] = 'Poems page %d' % page
     else:
         attr['_href'] = URL('poems', 'index')
         attr['_title'] = 'Poems'
@@ -22,6 +30,8 @@ def app_navbar():
         menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
     if auth.user_id and request.controller != 'studies':
         menu.insert(0, LI(A('Studies', _href=URL('studies', 'index'))))
+    if auth.user_id:
+        menu.insert(0, LI(A('Manage Poems', _href=URL('poems', 'manage'))))
     if request.controller != 'poems':
         menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
     if request.controller != 'about':

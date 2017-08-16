@@ -21,7 +21,6 @@ from gluon import xmlescape
 date_format = '%B %Y'
 index_class =  'col-xs-12 col-sm-6 col-md-4'
 poem_class = 'col-xs-12 col-sm-10 col-md-8'
-page_size = 9
 
 def _thumb(row, cls, title=None):
     """ Return a column DIV thumbnail. """
@@ -90,19 +89,22 @@ def grid(db):
         fields=fields,
         maxtextlengths=maxtextlengths,
         orderby=db.poem.chapter,
+        paginate=None,
         searchable=False,
         viewargs=viewargs)
     return grid
 
 def index(page_number, db):
     """ Return a row DIV of a page of poems. """
-    limitby = ((page_number-1)*page_size, (page_number)*page_size)
-    orderby = db.poem.chapter
-    thumbs = []
-    for row in db(db.poem.id>0).select(limitby=limitby, orderby=orderby):
-        thumbs.append(_thumb(row, index_class))
-    if not thumbs:
+    if page_number >= 1 and page_number <= 9:
+        low = ((page_number-1)*9)+1
+        high = page_number*9
+    else:
         raise Exception('No such page')
+    qry = ((db.poem.chapter>=low) & (db.poem.chapter<=high))
+    thumbs = []
+    for row in db(qry).select(orderby=db.poem.chapter):
+        thumbs.append(_thumb(row, index_class))
     return DIV(thumbs, _class='row display-flex')
 
 def links(poem, db):
@@ -130,49 +132,52 @@ def links(poem, db):
 def pager(db):
     """ Return a row DIV for a pager. """
     from gluon import current
-    import math
 
-    # Don't show pager if total number of poems is less than page size.
-    poem_count = db(db.poem.id).count()
-    page_count = int(math.ceil((poem_count + 0.0) / page_size))
-    if page_count <= 1:
-        return ''
-
-    # Current page.
+    # Previous/current/next page.
     if current.request.args(0):
         current_page = int(current.request.args(0))
     else:
         current_page = 1
+    prev_page = current_page - 1
+    next_page = current_page + 1
+
+    # List of LI.
+    pages = []
 
     # Previous/left.
-    prev_page = current_page - 1
+    li_class = ''
+    href = URL('poems', 'page', args=[str(prev_page)])
     if prev_page < 1:
-        left_href = '#'
-        left_class = 'previous disabled'
+        li_class = 'disabled'
+        href = '#'
     elif prev_page == 1:
-        left_href = URL('poems', 'index')
-        left_class = 'previous'
-    else:
-        left_href = URL('poems', 'page', args=[str(prev_page)])
-        left_class = 'previous'
-    left_span = SPAN(xmlescape(u'\u4e0a'), **{'_aria-hidden': 'true'})
-    left_anchor = A(left_span, _class='ddj-nav', _href=left_href)
-    left_li = LI(left_anchor, _class=left_class, _title='Previous Page')
+        href = URL('poems', 'index')
+    span = SPAN(xmlescape(u'\u4e0a'), **{'_aria-hidden': 'true'})
+    anchor = A(span, _href=href, **{'_aria-label': 'Previous'})
+    pages.append(LI(anchor, _class=li_class, _title='Previous Page'))
+
+    # Chapter range links.
+    for page in range(1, 10):
+        li_class = ''
+        href = URL('poems', 'page', args=[str(page)])
+        page_range = ['%d-%d' % (((page-1)*9)+1, page*9)]
+        if page == 1:
+            href = URL('poems', 'index')
+        if page == current_page:
+            li_class = 'active'
+            page_range.append(SPAN('(current)', _class='sr-only'))
+        anchor = A(page_range, _href=href)
+        pages.append(LI(anchor, _class=li_class))
 
     # Next/right.
-    next_page = current_page + 1
-    if next_page > page_count:
-        right_href = '#'
-        right_class = 'next disabled'
-    elif next_page == 1:
-        right_href = URL('poems', 'index')
-        right_class = 'next'
-    else:
-        right_href = URL('poems', 'page', args=[str(next_page)])
-        right_class = 'next'
-    right_span = SPAN(xmlescape(u'\u4e0b'), **{'_aria-hidden': 'true'})
-    right_anchor = A(right_span, _class='ddj-nav', _href=right_href)
-    right_li = LI(right_anchor, _class=right_class, _title='Next Page')
+    li_class = ''
+    href = URL('poems', 'page', args=[str(next_page)])
+    if next_page > 9:
+        li_class = 'disabled'
+        href = '#'
+    span = SPAN(xmlescape(u'\u4e0b'), **{'_aria-hidden': 'true'})
+    anchor = A(span, _href=href, **{'_aria-label': 'Next'})
+    pages.append(LI(anchor, _class=li_class, _title='Next Page'))
 
     # Together.
-    return UL(left_li, right_li, _class='pager')
+    return UL(pages, _class='pagination')

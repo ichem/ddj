@@ -11,9 +11,10 @@ def index():
         logger.error('Bad index: %s, %s', request.args, request.vars)
         raise HTTP(404)
     try:
-        idx = cache.ram('poems-1', lambda: poems.index(0, db))
+        idx = cache.ram('poems-1', lambda: poems.index(1, db))
         pager = cache.ram('poems_pager-1', lambda: poems.pager(db))
-        pager = TAG.nav(pager, **{'_aria-label': '...'})
+        pager = TAG.nav(pager, **{'_aria-label': 'Page navigation'})
+        pager = DIV(pager, _class='ddj-nav')
     except:
         logger.exception('Bad index: %s', request.args(0))
         raise HTTP(404)
@@ -45,7 +46,8 @@ def page():
         pager = cache.ram(
             'poem_pager-%s' % request.args(0),
             lambda: poems.pager(db))
-        pager = TAG.nav(pager, **{'_aria-label': '...'})
+        pager = TAG.nav(pager, **{'_aria-label': 'Page navigation'})
+        pager = DIV(pager, _class='ddj-nav')
     except:
         logger.exception('Bad page: %s', request.args(0))
         raise HTTP(404)
@@ -53,6 +55,6 @@ def page():
 
 @auth.requires_login()
 def manage():
-    response.title = '道德經'
+    response.title = '道德經 Manage'
     grid = poems.grid(db)
     return {'grid': grid}

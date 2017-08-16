@@ -53,9 +53,17 @@ a.ddj-thumbnail:hover {
 }
 
 /* Nav tweaks. */
-a.ddj-nav {
-    color: inherit;
-    font-weight: bold;
+.ddj-nav .pagination> li > a,
+.ddj-nav .pagination > li > span {
+    color: #333;
+}
+.pagination > li.active > a {
+    background: #333;
+    color: #fff;
+}
+.pagination > .active > a:hover,
+.pagination > .active > span:hover {
+    background-color: #333;
 }
 
 /* Standardize form column widths, disappear the third column. */
