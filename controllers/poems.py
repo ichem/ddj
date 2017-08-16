@@ -12,7 +12,7 @@ def index():
         raise HTTP(404)
     try:
         idx = cache.ram('poems-1', lambda: poems.index(1, db))
-        pager = cache.ram('poems_pager-1', lambda: poems.pager(db))
+        pager = cache.ram('poem_pager-1', lambda: poems.pager(db))
         pager = TAG.nav(pager, **{'_aria-label': 'Page navigation'})
         pager = DIV(pager, _class='ddj-nav')
     except:

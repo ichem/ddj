@@ -70,6 +70,24 @@ def chapter(poem, db, uhdb):
         _style='font-size:1.12em;white-space:nowrap;')
 
 def grid(db):
+    """ Return an SQLFORM.grid to manage poems. """
+
+    def onupdate(form):
+        from gluon import current
+
+        # Decache the poem itself.
+        current.cache.ram('poem-%s' % form.vars.chapter, None)
+
+        # Decache links to the poem in prev/next poems.
+        prev = int(form.vars.chapter) - 1
+        current.cache.ram('links-%d' % prev, None)
+        nxt = int(form.vars.chapter) + 1
+        current.cache.ram('links-%d' % nxt, None)
+
+        # Decache the page containing the poem.
+        page = (int(form.vars.chapter) + 8) / 9
+        current.cache.ram('poems-%d' % page, None)
+
     createargs = editargs = viewargs = {
         'fields': [
             'chapter', 'published', 'intro_hanzi', 'intro_en']}
@@ -88,6 +106,7 @@ def grid(db):
         editargs=editargs,
         fields=fields,
         maxtextlengths=maxtextlengths,
+        onupdate=onupdate,
         orderby=db.poem.chapter,
         paginate=None,
         searchable=False,
