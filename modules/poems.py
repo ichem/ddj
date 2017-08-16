@@ -78,11 +78,17 @@ def grid(db):
         # Decache the poem itself.
         current.cache.ram('poem-%s' % form.vars.chapter, None)
 
-        # Decache links to the poem in prev/next poems.
-        prev = int(form.vars.chapter) - 1
-        current.cache.ram('links-%d' % prev, None)
-        nxt = int(form.vars.chapter) + 1
-        current.cache.ram('links-%d' % nxt, None)
+        # Decache links in the next poem.
+        qry = db.poem.chapter > int(form.vars.chapter)
+        nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
+        if nxt:
+            current.cache.ram('links-%d' % nxt.first().chapter, None)
+
+        # Decache links in the previous poem.
+        qry = db.poem.chapter < int(form.vars.chapter)
+        prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
+        if prev:
+            current.cache.ram('links-%d' % prev.first().chapter, None)
 
         # Decache the page containing the poem.
         page = (int(form.vars.chapter) + 8) / 9
@@ -132,15 +138,15 @@ def links(poem, db):
 
     # Next.
     qry = db.poem.chapter > poem.chapter
-    newer = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
-    if newer:
-        thumbs.append(_thumb(newer.first(), poem_class, 'Next'))
+    nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
+    if nxt:
+        thumbs.append(_thumb(nxt.first(), poem_class, 'Next'))
 
     # Previous.
     qry = db.poem.chapter < poem.chapter
-    older = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
-    if older:
-        thumbs.append(_thumb(older.first(), poem_class, 'Previous'))
+    prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
+    if prev:
+        thumbs.append(_thumb(prev.first(), poem_class, 'Previous'))
 
     # Bootstrap.
     return DIV(
