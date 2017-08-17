@@ -69,30 +69,31 @@ def chapter(poem, db, uhdb):
         column, _class='row',
         _style='font-size:1.12em;white-space:nowrap;')
 
+def decache(chapter, db):
+    """ Clear study chapter cache data. """
+    from gluon import current
+
+    # Decache the poem itself.
+    current.cache.ram('poem-%d' % chapter, None)
+
+    # Decache links in the next poem.
+    qry = db.poem.chapter > int(chapter)
+    nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
+    if nxt:
+        current.cache.ram('links-%d' % nxt.first().chapter, None)
+
+    # Decache links in the previous poem.
+    qry = db.poem.chapter < chapter
+    prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
+    if prev:
+        current.cache.ram('links-%d' % prev.first().chapter, None)
+
+    # Decache the page containing the poem.
+    page = (chapter + 8) / 9
+    current.cache.ram('poems-%d' % page, None)
+
 def grid(db):
     """ Return an SQLFORM.grid to manage poems. """
-
-    def onupdate(form):
-        from gluon import current
-
-        # Decache the poem itself.
-        current.cache.ram('poem-%s' % form.vars.chapter, None)
-
-        # Decache links in the next poem.
-        qry = db.poem.chapter > int(form.vars.chapter)
-        nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
-        if nxt:
-            current.cache.ram('links-%d' % nxt.first().chapter, None)
-
-        # Decache links in the previous poem.
-        qry = db.poem.chapter < int(form.vars.chapter)
-        prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
-        if prev:
-            current.cache.ram('links-%d' % prev.first().chapter, None)
-
-        # Decache the page containing the poem.
-        page = (int(form.vars.chapter) + 8) / 9
-        current.cache.ram('poems-%d' % page, None)
 
     createargs = editargs = viewargs = {
         'fields': [
@@ -103,6 +104,7 @@ def grid(db):
         db.poem.intro_hanzi,
         db.poem.intro_en]
     maxtextlengths = {'poem.published': 50}
+    onupdate = lambda form: decache(int(form.vars.chapter), db)
     db.poem.published.represent = lambda value, row: value.strftime(date_format)
     db.poem.chapter.requires = IS_IN_SET(range(1, 82), zero=None)
     grid = SQLFORM.grid(

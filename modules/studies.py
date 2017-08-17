@@ -37,6 +37,13 @@ def comparison(chapter_number, db, uhdb):
 
     return SPAN(columns)
 
+def decache(chapter, db):
+    """ Clear study chapter cache data. """
+    from gluon import current
+
+    current.cache.ram('study-%d' % chapter, None)
+    current.cache.ram('toc', None)
+
 def edit_form(chapter, verse, args):
     """ Return a form to edit a DDJ chapter. """
     memdb = DAL('sqlite:memory:')

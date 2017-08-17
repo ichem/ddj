@@ -65,12 +65,15 @@ def chapter():
                     prow.update_record(published=datetime.datetime.now())
                     logger.info('Updated %s publish date', prow.chapter)
 
-            # Update records, clear cache and go.
+            # Update records.
             chrow.update_record(title=form.vars.title)
             vrow.update_record(**vdata)
-            cache.ram('study-%s' % request.args[0], None)
-            cache.ram('poem-%s' % request.args[0], None)
-            cache.ram('toc', None)
+
+            # Clear cache and go.
+            import poems
+
+            poems.decache(int(request.args(0)), db)
+            studies.decache(int(request.args(0)), db)
             redirect(URL(args=request.args[:1]))
 
         # Generate the comparison and stick it on the page too.
