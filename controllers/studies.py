@@ -49,9 +49,7 @@ def chapter():
 
             # Get verse data from the form.
             vdata = {
-                'publish_en': form.vars.publish_english,
                 'en': form.vars.english,
-                'publish_notes': form.vars.publish_notes,
                 'notes': form.vars.notes,
                 'hanzi': form.vars.hanzi}
 

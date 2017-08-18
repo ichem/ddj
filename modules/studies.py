@@ -50,15 +50,11 @@ def edit_form(chapter, verse, args):
     memdb.define_table('chapter',
         Field('title'),
         Field('english', 'text'),
-        Field('publish_english', 'boolean'),
         Field('hanzi', 'text'),
-        Field('notes', 'text'),
-        Field('publish_notes', 'boolean'))
+        Field('notes', 'text'))
     record = {
         'title': chapter.title,
-        'publish_english': verse.publish_en,
         'english': verse.en,
-        'publish_notes': verse.publish_notes,
         'notes': verse.notes,
         'hanzi': verse.hanzi}
     record_id = memdb.chapter.insert(**record)

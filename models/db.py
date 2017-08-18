@@ -40,9 +40,7 @@ db.define_table('verse',
     Field('en', 'text'),
     Field('hanzi', 'text'),
     Field('notes', 'text'),
-    Field('number', 'integer'),
-    Field('publish_en', 'boolean'),
-    Field('publish_notes', 'boolean'))
+    Field('number', 'integer'))
 
 # Post tables.
 db.define_table('commentary',
