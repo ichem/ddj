@@ -55,7 +55,7 @@ def chapter():
                 'notes': form.vars.notes,
                 'hanzi': form.vars.hanzi}
 
-            # Update the published date on changes to title/en/hanzi.
+            # Update the poem published date on change.
             if (
                     chrow.title != form.vars.title
                     or vrow.en != form.vars.english):
@@ -91,48 +91,50 @@ def index():
 
 @_service.run
 def next(chapter):
-    """ Return the number of the next published chapter. """
+    """ Return the number of the next chapter. """
 
     def next_candidate(i):
-        return ((i - 1) + 1) % 81 + 1
+        return int(((i - 1) + 1) % 81 + 1)
 
-    candidate = next_candidate(int(chapter))
+    public, private = cache.ram('toc', lambda: studies_toc())
     if auth.user:
-        return candidate
+        toc_map = private
     else:
-        _, published = cache.ram('toc', lambda: studies_toc())
-        while candidate != int(chapter):
-            if candidate in published:
-                return candidate
-            candidate = next_candidate(candidate)
-        return chapter
+        toc_map = public
+    candidate = next_candidate(int(chapter))
+    while candidate != int(chapter):
+        if candidate in toc_map:
+            return candidate
+        candidate = next_candidate(candidate)
+    return chapter
 
 @_service.run
 def previous(chapter):
-    """ Return the number of the previous published chapter. """
+    """ Return the number of the previous chapter. """
 
     def prev_candidate(i):
-        return ((i - 1) + 81 - 1) % 81 + 1
+        return int(((i - 1) + 81 - 1) % 81 + 1)
 
-    candidate = prev_candidate(int(chapter))
+    public, private = cache.ram('toc', lambda: studies_toc())
     if auth.user:
-        return candidate
+        toc_map = private
     else:
-        _, published = cache.ram('toc', lambda: studies_toc())
-        while candidate != int(chapter):
-            if candidate in published:
-                return candidate
-            candidate = prev_candidate(candidate)
-        return chapter
+        toc_map = public
+    candidate = prev_candidate(int(chapter))
+    while candidate != int(chapter):
+        if candidate in toc_map:
+            return candidate
+        candidate = prev_candidate(candidate)
+    return chapter
 
 @_service.run
 def toc(chapter):
     """ Return a table of contents element. """
-    links, published = cache.ram('toc', lambda: studies_toc())
+    public, private = cache.ram('toc', lambda: studies_toc())
     if auth.user:
-        toc_map = links
+        toc_map = private
     else:
-        toc_map = published
+        toc_map = public
     try:
         link = toc_map[int(chapter)]
         link[0]['_class'] += ' studies-toc-current'

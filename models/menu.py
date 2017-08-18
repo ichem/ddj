@@ -28,7 +28,7 @@ def app_navbar():
         menu.insert(0, LI('', _class='divider'))
     if request.controller != 'unihan':
         menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
-    if auth.user_id and request.controller != 'studies':
+    if request.controller != 'studies':
         menu.insert(0, LI(A('Studies', _href=URL('studies', 'index'))))
     if auth.user_id:
         menu.insert(0, LI(A('Manage Poems', _href=URL('poems', 'manage'))))
@@ -41,14 +41,19 @@ def app_navbar():
 
 def default_study():
     """ Return a URL for the default study app chapter. """
-    _, published = cache.ram('toc', lambda: studies_toc())
-    if published:
-        return URL('studies', 'chapter', args=[published.items()[0][0]])
-    return URL('studies', 'chapter',  args=['1'])
+    public, private = cache.ram('toc', lambda: studies_toc())
+    if auth.user:
+        toc_map = private
+    else:
+        toc_map = public
+    if toc_map:
+        return URL('studies', 'chapter', args=[toc_map.items()[0][0]])
+    return URL('poems', 'index')
 
 def studies_toc():
-    """ Return a tuple of dicts, both map chapter id to toc links. The first
-    dict contains all chapters, the second only has published chapters. """
+    """ Return a tuple of ordered dicts that map chapter id to toc links.
+    The first dict contains chapters that don't have an associated English
+    poem, the second dict contains chapters that do. """
     from collections import OrderedDict
 
     def study_link(chapter):
@@ -58,14 +63,16 @@ def studies_toc():
         lnk = '%i %s' % (verse.chapter.number, verse.chapter.title or '')
         return DIV(A(lnk, _class=cls, _href=url))
 
-    links = OrderedDict()
-    published = OrderedDict()
+    public = OrderedDict()
+    private = OrderedDict()
+    for poem in db(db.poem).select(orderby=db.poem.chapter):
+        link = study_link(poem.chapter)
+        public[int(poem.chapter)] = link
     for chapter in range(1, 82):
-        link = study_link(chapter)
-        if db.verse[chapter].publish_en:
-            published[chapter] = link
-        links[chapter] = link
-    return links, published
+        if chapter not in public:
+            link = study_link(chapter)
+            private[int(chapter)] = link
+    return public, private
 
 app_logo()
 app_navbar()
