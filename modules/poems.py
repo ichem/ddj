@@ -141,12 +141,18 @@ def links(poem, db):
     # Next.
     qry = db.poem.chapter > poem.chapter
     nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
-    if nxt:
+    if not nxt:
+        qry = db.poem.chapter >= 1
+        nxt = db(qry).select(limitby=(0,1), orderby=db.poem.chapter)
+    if nxt: 
         thumbs.append(_thumb(nxt.first(), poem_class, 'Next'))
 
     # Previous.
     qry = db.poem.chapter < poem.chapter
     prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
+    if not prev:
+        qry = db.poem.chapter <= 81
+        prev = db(qry).select(limitby=(0,1), orderby=~db.poem.chapter)
     if prev:
         thumbs.append(_thumb(prev.first(), poem_class, 'Previous'))
 
