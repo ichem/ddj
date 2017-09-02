@@ -121,23 +121,40 @@ def info_block(row, uhdb):
     def char_links():
         """ Return a UL of _blank links to info on the character. """
         links = []
+
+        # Search.
         href = URL('library', 'search', vars={'chars': row.utf8})
         links.append(A('Search', _target='blank', _href=href))
+
+        # Ctext.
         href = 'http://ctext.org/daoism?searchu=%s' % row.utf8
         links.append(A('CText', _target='blank', _href=href))
+
+        # Unihan.
         href = (
-            'http://www.chineseetymology.org/CharacterEtymology.aspx'
-            '?characterInput=%s') % row.utf8
-        links.append(A('Etymology', _target='blank', _href=href))
+            'http://www.unicode.org/cgi-bin/GetUnihanData.pl'
+            '?codepoint=%s' % row.utf8)
+        links.append(A('Unihan', _target='blank', _href=href))
+
+        # MDBG.
         href = (
             'http://www.mdbg.net/chindict/chindict.php'
             '?page=worddict&wdrst=1&wdqb=%s') % row.utf8
         links.append(A('MDBG', _target='blank', _href=href))
+
+        # Etymology.
+        href = (
+            'http://www.chineseetymology.org/CharacterEtymology.aspx'
+            '?characterInput=%s') % row.utf8
+        links.append(A('Etymology', _target='blank', _href=href))
+
+        # Zhongwen.
         if row.kBigFive:
             big5 = '%{0}%{1}'.format(
                 row.kBigFive[:2], row.kBigFive[2:])
             href = 'http://zhongwen.com/cgi-bin/zipux2.cgi?b5=%s' % big5
             links.append(A('Zhongwen', _target='blank', _href=href))
+
         return UL(*[LI(link) for link in links], _class='list-inline')
 
     blocks = DIV(char_blocks(), _class='col-md-12 clearfix')
