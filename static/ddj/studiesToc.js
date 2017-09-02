@@ -23,7 +23,7 @@ function tocModal(ev) {
         timeout: 3000
     }).done(function(html) {
         setHTML(html);
-    }).error(function(ev) {
+    }).on('error', function(ev) {
         setHTML('Error loading table of contents.');
     });
     $('#toc-modal').modal();
