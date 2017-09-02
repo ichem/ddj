@@ -7,7 +7,7 @@ function loadNext() {
         timeout: 3000
     }).done(function(next) {
         window.location.href = '/studies/chapter/' + next;
-    }).on('error', function(ev) {
+    }).fail(function(ev) {
         window.location.href = '/studies/chapter/' + current;
     });
 }
@@ -20,7 +20,7 @@ function loadPrevious() {
         timeout: 3000
     }).done(function(previous) {
         window.location.href = '/studies/chapter/' + previous;
-    }).on('error', function(ev) {
+    }).fail(function(ev) {
         window.location.href = '/studies/chapter/' + current;
     });
 }

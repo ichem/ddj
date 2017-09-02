@@ -22,7 +22,7 @@ function infoModal(ev) {
         timeout: 3000
     }).done(function(html) {
         setHTML(html);
-    }).on('error', function(ev) {
+    }).fail(function(ev) {
         setHTML('Error loading character data.');
     });
     $('#info-modal').modal();
