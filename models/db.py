@@ -1,4 +1,4 @@
-# Unihan tables in sqlite db.
+# Unihan tables.
 uhdb = DAL('sqlite:///opt/ddj/unihan10.sqlite', lazy_tables=True)
 uhdb.define_table('character', # ID is the character's codepoint int.
     Field('codepoint'), # String encoding the codepoint, 'U+XXXX'.
@@ -26,7 +26,7 @@ uhdb.define_table('radical', # ID is radical character's codepoint int.
     Field('utf8'),
     migrate=False)
 
-# Library tables in app db.
+# Library tables.
 db.define_table('book',
     Field('title'),
     Field('subtitle'))
@@ -40,32 +40,20 @@ db.define_table('verse',
     Field('en', 'text'),
     Field('hanzi', 'text'),
     Field('notes', 'text'),
-    Field('number', 'integer'),
-    Field('publish_en', 'boolean'),
-    Field('publish_notes', 'boolean'))
+    Field('number', 'integer'))
 
-# Blog table in app db.
-db.define_table('post',
-    Field('content', 'text'),
-    Field('description', 'text'),
+# Post tables.
+db.define_table('commentary',
+    Field('title'),
     Field('published', 'datetime'),
-    Field('subtitle'),
-    Field('title'))
+    Field('intro', 'text'),
+    Field('content', 'text'))
 
-# Server admin table.
-db.define_table(
-    'server_admin',
-    Field('auth_user', 'reference auth_user'),
-    Field('receive_ban_notifications', 'boolean'))
-
-# Offender table.
-db.define_table(
-    'auth_offender',
-    Field('attempts', 'integer'),
-    Field('auth_users', 'list:reference auth_user'),
-    Field('banned', 'boolean'),
-    Field('last_attempt', 'datetime'),
-    Field('remote_addr'))
+db.define_table('poem',
+    Field('chapter', 'reference chapter'),
+    Field('published', 'datetime'),
+    Field('intro_hanzi'),
+    Field('intro_en'))
 
 # SSH access table.
 db.define_table('ssh', Field('addr'))

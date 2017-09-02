@@ -16,7 +16,7 @@ def _uh_repr(row):
         '_title': title}
     return A(char, **attr)
 
-def char_info(row, uhdb):
+def info_block(row, uhdb):
     """ Transform a character row into a block containing detailed
     information about the character. """
 
@@ -145,32 +145,47 @@ def char_info(row, uhdb):
     bullets = DIV(char_bullets(), _class='col-md-12')
     return DIV([blocks, links, bullets], _class='row')
 
-def char_info_blocks(chars, strip, uhdb):
+def pinyin_string(chars, uhdb):
+    """ Return a pinyin string for the Unihan chars. """
+    pinyin = u''
+    chars = u' '.join(chars.decode('utf-8').split()) # Normalize whitespace.
+    for char in chars:
+        if char == u' ' and pinyin and not pinyin.endswith(u','):
+            pinyin += u','
+        else:
+            codepoint = ord(char)
+            row = uhdb.character[codepoint]
+            if row:
+                if pinyin:
+                    pinyin += u' '
+                if row.kMandarin:
+                    mandarin = row.kMandarin.split()
+                    pinyin += mandarin[0].decode('utf-8')
+                else:
+                    pinyin += '???'
+            elif pinyin and not pinyin.endswith(u','):
+                pinyin += u','
+    return pinyin.strip(u',')
+
+def string_block(chars, strip, uhdb):
     """ Transform a string of characters into a block of elements. Return
-    two DIVs, one of clickable info-block elements and one of pinyin. """
+    a DIVs of clickable info-block elements. """
     info = []
-    pinyin = []
     chars = u' '.join(chars.decode('utf-8').split()) # Normalize whitespace.
     for char in chars:
         codepoint = ord(char)
-        if pinyin and pinyin[-1] != u' ':
-            pinyin.append(u' ')
         if char == u' ':
             info.append(char)
-            pinyin.append(u', ')
         elif codepoint == 9633: # Comparison with u'□' doesn't work.
             info.append(SPAN(char, _class='uh-char'))
-            pinyin.append(SPAN(char, _class='uh-char'))
         else:
             row = uhdb.character[codepoint]
             if row:
                 info.append(_uh_repr(row))
-                pinyin.append(SPAN(row.kMandarin, _class='uh-char'))
             else:
                 if strip:
                     if info and info[-1] != u' ':
                         info.append(u' ')
                 else:
                     info.append(SPAN(char, _class='uh-char'))
-                    pinyin.append(SPAN(char, _class='uh-char'))
-    return DIV(info, _class='uh-block'), DIV(pinyin, _class='uh-block')
+    return DIV(info, _class='uh-block')

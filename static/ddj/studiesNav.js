@@ -3,12 +3,12 @@ function loadNext() {
         window.location.href.lastIndexOf('/') + 1)
     $('#main').html('Loading the next chapter...');
     $.ajax({
-        url: '/ddj/call/run/next/' + current,
+        url: '/studies/call/run/next/' + current,
         timeout: 3000
     }).done(function(next) {
-        window.location.href = '/ddj/chapter/' + next;
+        window.location.href = '/studies/chapter/' + next;
     }).error(function(ev) {
-        window.location.href = '/ddj/chapter/' + current;
+        window.location.href = '/studies/chapter/' + current;
     });
 }
 function loadPrevious() {
@@ -16,12 +16,12 @@ function loadPrevious() {
         window.location.href.lastIndexOf('/') + 1)
     $('#main').html('Loading the previous chapter...');
     $.ajax({
-        url: '/ddj/call/run/previous/' + current,
+        url: '/studies/call/run/previous/' + current,
         timeout: 3000
     }).done(function(previous) {
-        window.location.href = '/ddj/chapter/' + previous;
+        window.location.href = '/studies/chapter/' + previous;
     }).error(function(ev) {
-        window.location.href = '/ddj/chapter/' + current;
+        window.location.href = '/studies/chapter/' + current;
     });
 }
 /* Keyboard navigation. */

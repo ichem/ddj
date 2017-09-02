@@ -1,18 +1,21 @@
-/* DDJ styling */
 body {
     font-size: 16px;
 }
-.ddj-toc {
+
+
+/* Studies styling */
+.studies-toc {
     text-align: center;
 }
-.ddj-toc-current {
+.studies-toc-current {
     font-weight: bold;
 }
-a.ddj-toc-link {
+a.studies-toc-link {
     font-size: 1.2em;
     color: inherit;
     text-decoration: none;
 }
+
 /* Unihan styling */
 .uh-char {
     font-size: 1.5em;
@@ -20,9 +23,6 @@ a.ddj-toc-link {
 a.uh-char-link {
     color: inherit;
     text-decoration: none;
-}
-.uh-block {
-    padding-bottom: 1em;
 }
 label.uh-info-label {
     font-weight: inherit;
@@ -37,12 +37,33 @@ label.uh-info-label {
     writing-mode: vertical-lr;
 }
 
-/* Post thumbnail tweaks. */
+/* Thumbnail tweaks. */
+.row.display-flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+.thumbnail {
+    height: 90%;
+}
 .thumbnail:hover {
     background-color: whitesmoke;
 }
 a.ddj-thumbnail:hover {
     text-decoration: none;
+}
+
+/* Nav tweaks. */
+.ddj-nav .pagination> li > a,
+.ddj-nav .pagination > li > span {
+    color: #333;
+}
+.pagination > li.active > a {
+    background: #333;
+    color: #fff;
+}
+.pagination > .active > a:hover,
+.pagination > .active > span:hover {
+    background-color: #333;
 }
 
 /* Standardize form column widths, disappear the third column. */

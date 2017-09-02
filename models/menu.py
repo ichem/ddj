@@ -1,76 +1,78 @@
-def ddj_navbar():
-    """ Add DDJ links to auth navbar. """
-    response.auth_navbar = auth.navbar(mode='dropdown')
-    menu = response.auth_navbar.element('.dropdown-menu')
-    if auth.user_id:
-        menu.insert(0, LI('', _class='divider'))
-    if request.controller != 'unihan':
-        menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
-    if (
-            request.controller != 'ddj'
-            or request.controller == 'ddj' and request.function != 'chapter'):
-        href = default_chapter()
-        menu.insert(0, LI(A('In Progress', _href=href)))
-    if request.controller != 'posts':
-        menu.insert(0, LI(A('Posts', _href=URL('posts', 'index'))))
-    if (
-            request.controller != 'ddj'
-            or request.controller == 'ddj' and request.function != 'about'):
-        menu.insert(0, LI(A('About', _href=URL('ddj', 'about'))))
-    if 'Log In' in response.auth_navbar.element('.dropdown-toggle'):
-        response.auth_navbar.element('.dropdown-toggle')[0] = 'Menu'
-
-def ddj_toc():
+def app_logo():
     """ Set table of contents element. """
     attr = {
         '_class': 'navbar-brand',
         '_role': 'button'}
-    if request.controller == 'ddj':
-        if request.function == 'about':
-            attr['_href'] = URL('posts', 'index')
-            attr['_title'] = 'All Posts'
+    if request.controller == 'studies':
+        attr['_onclick'] = 'tocModal(event);'
+        attr['_title'] = 'Chapter Studies'
+    elif request.controller == 'poems' and request.function == 'chapter':
+        page = (int(request.args(0)) + 8) / 9
+        if page == 1:
+            attr['_href'] = URL('poems', 'index')
+            attr['_title'] = 'Poems'
         else:
-            attr['_onclick'] = 'tocModal(event);'
-            attr['_title'] = 'In Progress List'
-    elif request.controller == 'posts':
-        attr['_href'] = URL('posts', 'index')
-        attr['_title'] = 'All Posts'
+            attr['_href'] = URL('poems', 'page', args=[str(page)])
+            attr['_title'] = 'Poems page %d' % page
     else:
-        attr['_href'] = URL('posts', 'index')
-        attr['_title'] = 'All Posts'
+        attr['_href'] = URL('poems', 'index')
+        attr['_title'] = 'Poems'
     response.navbar_toggle = LI(A('道德經', **attr))
 
-def default_chapter():
-    """ Return a URL for the default chapter. """
+def app_navbar():
+    """ Add links / clean up auth navbar. """
+    response.auth_navbar = auth.navbar(mode='dropdown')
+    menu = response.auth_navbar.element('.dropdown-menu')
     if auth.user_id:
-        return URL('ddj', 'chapter', args=['1'])
-    _, published = cache.ram('toc', lambda: toc_maps())
-    if published:
-        return URL('ddj', 'chapter', args=[published.items()[0][0]])
+        menu.insert(0, LI(A('SSH', _href=URL('ssh', 'index'))))
+        menu.insert(0, LI('', _class='divider'))
+    if request.controller != 'unihan':
+        menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))
+    if request.controller != 'studies':
+        menu.insert(0, LI(A('Studies', _href=URL('studies', 'index'))))
+    if auth.user_id:
+        menu.insert(0, LI(A('Manage Poems', _href=URL('poems', 'manage'))))
+    if request.controller != 'poems':
+        menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
+    if request.controller != 'about':
+        menu.insert(0, LI(A('About', _href=URL('about', 'index'))))
+    if 'Log In' in response.auth_navbar.element('.dropdown-toggle'):
+        response.auth_navbar.element('.dropdown-toggle')[0] = 'Menu'
 
-def toc_maps():
-    """ Return a tuple of dicts, both map chapter id to toc links. The first
-    dict contains all chapters, the second only has published chapters. """
+def default_study():
+    """ Return a URL for the default study app chapter. """
+    public, private = cache.ram('toc', lambda: studies_toc())
+    if auth.user:
+        toc_map = private
+    else:
+        toc_map = public
+    if toc_map:
+        return URL('studies', 'chapter', args=[toc_map.items()[0][0]])
+    return URL('poems', 'index')
+
+def studies_toc():
+    """ Return a tuple of ordered dicts that map chapter id to toc links.
+    The first dict contains chapters that don't have an associated English
+    poem, the second dict contains chapters that do. """
     from collections import OrderedDict
 
-    def toc_link(chapter):
+    def study_link(chapter):
         verse = db.verse[chapter]
-        url = URL('ddj', 'chapter', args=[verse.chapter.number])
-        cls = 'ddj-toc-link'
+        url = URL('studies', 'chapter', args=[verse.chapter.number])
+        cls = 'studies-toc-link'
         lnk = '%i %s' % (verse.chapter.number, verse.chapter.title or '')
         return DIV(A(lnk, _class=cls, _href=url))
 
-    logger.debug('Generating new table of contents maps')
-    links = OrderedDict()
-    published = OrderedDict()
+    public = OrderedDict()
+    private = OrderedDict()
+    for poem in db(db.poem).select(orderby=db.poem.chapter):
+        link = study_link(poem.chapter)
+        public[int(poem.chapter)] = link
     for chapter in range(1, 82):
-        link = toc_link(chapter)
-        if db.verse[chapter].publish_en:
-            published[chapter] = link
-        links[chapter] = link
-    return links, published
+        if chapter not in public:
+            link = study_link(chapter)
+            private[int(chapter)] = link
+    return public, private
 
-auth.settings.actions_disabled.append('request_reset_password')
-auth.settings.logout_next = URL(args=request.args(0))
-ddj_navbar()
-ddj_toc()
+app_logo()
+app_navbar()

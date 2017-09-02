@@ -35,7 +35,9 @@ def search():
             verses = DIV(_class='row')
             for row in rows:
                 pid = 'pid-%d' % row.id
+                href = URL('studies', 'chapter', args=[row.chapter.number])
                 label = 'Chapter %d' % row.chapter.number
+                label = A(label, _href=href, _style='color:inherit;')
                 label = DIV(LABEL(label, _for=pid), _class='col-md-2')
                 hanzi = []
                 for char in row.hanzi.decode('utf-8'):
