@@ -1,10 +1,9 @@
 """ Provide basic globals. """
-import logging
 import os
-import rsyslog
 from gluon.contrib.memcache import MemcacheClient
 from gluon.tools import Auth
 from gluon.tools import Mail
+import zero
 
 
 def auth_buttons(form):
@@ -53,7 +52,7 @@ def log(event, details=None):
 
 # App config.
 T.is_writable = False # No language file updates.
-logger = rsyslog.getLogger('app', logging.INFO)
+logger = zero.getLogger('app')
 db = DAL('sqlite://app.db', lazy_tables=True)
 cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 session.connect(request, response, db)
