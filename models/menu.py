@@ -69,9 +69,8 @@ def studies_toc():
         link = study_link(poem.chapter)
         public[int(poem.chapter)] = link
     for chapter in range(1, 82):
-        if chapter not in public:
-            link = study_link(chapter)
-            private[int(chapter)] = link
+        link = study_link(chapter)
+        private[int(chapter)] = link
     return public, private
 
 app_logo()

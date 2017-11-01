@@ -71,7 +71,11 @@ def chapter(poem, db, uhdb):
 
 def decache(chapter, db):
     """ Clear study chapter cache data. """
+    import studies
     from gluon import current
+
+    # Decache the associated study.
+    studies.decache(chapter, db)
 
     # Decache the poem itself.
     current.cache.ram('poem-%d' % chapter, None)
