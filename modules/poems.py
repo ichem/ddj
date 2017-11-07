@@ -69,6 +69,14 @@ def chapter(poem, db, uhdb):
         column, _class='row',
         _style='font-size:1.12em;white-space:nowrap;')
 
+def chapter_range(page_number):
+    if page_number >= 1 and page_number <= 9:
+        low = ((page_number-1)*9)+1
+        high = page_number*9
+    else:
+        raise Exception('No such page')
+    return low, high
+
 def decache(chapter, db):
     """ Clear study chapter cache data. """
     import studies
@@ -118,6 +126,7 @@ def grid(db):
         editargs=editargs,
         fields=fields,
         maxtextlengths=maxtextlengths,
+        oncreate=onupdate,
         onupdate=onupdate,
         orderby=db.poem.chapter,
         paginate=None,
@@ -127,11 +136,7 @@ def grid(db):
 
 def index(page_number, db):
     """ Return a row DIV of a page of poems. """
-    if page_number >= 1 and page_number <= 9:
-        low = ((page_number-1)*9)+1
-        high = page_number*9
-    else:
-        raise Exception('No such page')
+    low, high = chapter_range(page_number)
     qry = ((db.poem.chapter>=low) & (db.poem.chapter<=high))
     thumbs = []
     for row in db(qry).select(orderby=db.poem.chapter):

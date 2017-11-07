@@ -25,10 +25,10 @@ def chapter():
         prow = db(db.poem.chapter==request.args(0)).select().first()
         if not prow:
             raise HTTP(404)
-        response.title = '道德經 Chapter %i' % prow.chapter.number
         poem = cache.ram(
             'poem-%s' % request.args[0],
             lambda: poems.chapter(prow, db, uhdb))
+        response.title = '道德經 %s' % poem[0][0][0]
         links = cache.ram(
             'links-%s' % request.args[0],
             lambda: poems.links(prow, db))
@@ -39,7 +39,8 @@ def chapter():
 
 def page():
     try:
-        response.title = '道德經 Page %s' % request.args(0)
+        low, high = poems.chapter_range(int(request.args(0)))
+        response.title = '道德經 %i-%i' % (low, high)
         idx = cache.ram(
             'poems-%s' % request.args(0),
             lambda: poems.index(int(request.args(0)), db))
