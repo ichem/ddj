@@ -38,25 +38,53 @@ def auth_title():
     return ''
 
 def log(event, details=None):
-    """ Log event / send email to app admin. """
-    subject = '%s event on %s' % (event, request.env.server_name)
-    msg = '%s\n%s' % (request.env.remote_addr, details or '')
-    logger.warning('%s from %s', subject,  msg)
-    mailer = Mail(
-        'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
-    admin = db(db.auth_user).select().first()
-    if admin and admin.email:
-        mailer.send(admin.email, subject, msg)
-    else:
-        logger.error('Error finding app admin email address')
+    """ Log event / ban and send email to app admin. """
+    addr = request.env.remote_addr
+    urls = cache.ram('events-%s' % addr, lambda: [])
+    urls.append((addr, event, details))
+    urls = cache.ram('events-%s' % addr, lambda: urls, 0)
+    logger.info(urls)
+    logger.warning('%s %s from %s', event, details, addr)
+    if len(urls) >= 4: # Ban user, email admin.
+        import xmlrpclib
 
-# App config.
-T.is_writable = False # No language file updates.
+        # Ban the remote addr.
+        try:
+            ufwd = xmlrpclib.ServerProxy('http://localhost:8001')
+            ufwd.ban(request.env.remote_addr)
+        except:
+            logger.exception('ufwd ban exception')
+
+        # Email the admin.
+        subject = 'Ban event on %s' % request.env.server_name
+        msg = ''
+        for url in urls:
+            msg += '%s %s %s\n' % (url[0], url[1], url[2] or '')
+        mailer = Mail(
+            'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
+        admin = db(db.auth_user).select().first()
+        if admin and admin.email:
+            mailer.send(admin.email, subject, msg)
+            logger.info('Ban email sent to %s', admin.email)
+        else:
+            logger.error('Error finding app admin email address')
+
+# Basic app config.
 logger = zero.getLogger('app')
+T.is_writable = False # No language file updates.
 db = DAL('sqlite://app.db', lazy_tables=True)
 cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 session.connect(request, response, db)
 session.secure()
+
+# Log and redirect HTTP requests to HTTPS.
+if request.env.server_port == '80':
+    auth = Auth(db, controller='auth', secure=False)
+    auth.define_tables(signature=True)
+    log('301', request.vars.requested_uri)
+    redirect(URL('poems', 'index', scheme='https'), 301)
+
+# Auth config.
 auth = Auth(
     db, propagate_extension='', controller='auth',
     secure=True, url_index=URL('default', 'index'))
