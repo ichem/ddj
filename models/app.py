@@ -43,7 +43,6 @@ def log(event, details=None):
     urls = cache.ram('events-%s' % addr, lambda: [])
     urls.append((addr, event, details))
     urls = cache.ram('events-%s' % addr, lambda: urls, 0)
-    logger.info(urls)
     logger.warning('%s %s from %s', event, details, addr)
     if len(urls) >= 4: # Ban user, email admin.
         import xmlrpclib
@@ -74,8 +73,6 @@ logger = zero.getLogger('app')
 T.is_writable = False # No language file updates.
 db = DAL('sqlite://app.db', lazy_tables=True)
 cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
-session.connect(request, response, db)
-session.secure()
 
 # Log and redirect HTTP requests to HTTPS.
 if request.env.server_port == '80':
@@ -84,7 +81,9 @@ if request.env.server_port == '80':
     log('301', request.vars.requested_uri)
     redirect(URL('poems', 'index', scheme='https'), 301)
 
-# Auth config.
+# Session/auth config.
+session.connect(request, response, db)
+session.secure()
 auth = Auth(
     db, propagate_extension='', controller='auth',
     secure=True, url_index=URL('default', 'index'))
