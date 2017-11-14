@@ -37,14 +37,15 @@ def auth_title():
         return T(request.args(0).replace('_', ' ').title())
     return ''
 
-def log(event, details=None):
+def log(event):
     """ Log event / ban and send email to app admin. """
     addr = request.env.remote_addr
     urls = cache.ram('events-%s' % addr, lambda: [])
-    urls.append((addr, event, details))
+    urls.append((addr, event, request.vars))
     urls = cache.ram('events-%s' % addr, lambda: urls, 0)
-    logger.warning('%s %s from %s', event, details, addr)
+    logger.warning('%s %s from %s', event, request.vars, addr)
     if len(urls) >= 4: # Ban user, email admin.
+        import socket
         import xmlrpclib
 
         # Ban the remote addr.
@@ -55,12 +56,13 @@ def log(event, details=None):
             logger.exception('ufwd ban exception')
 
         # Email the admin.
-        subject = 'Ban event on %s' % request.env.server_name
+        hostname = socket.gethostname()
+        subject = 'Ban event on %s' % hostname
         msg = ''
         for url in urls:
             msg += '%s %s %s\n' % (url[0], url[1], url[2] or '')
         mailer = Mail(
-            'localhost:25', 'noreply@%s' % request.env.server_name, tls=False)
+            'localhost:25', 'noreply@%s' % hostname, tls=False)
         admin = db(db.auth_user).select().first()
         if admin and admin.email:
             mailer.send(admin.email, subject, msg)
@@ -78,7 +80,7 @@ cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 if request.env.server_port == '80':
     auth = Auth(db, controller='auth', secure=False)
     auth.define_tables(signature=True)
-    log('301', request.vars.requested_uri)
+    log('301')
     redirect(URL('poems', 'index', scheme='https'), 301)
 
 # Session/auth config.
