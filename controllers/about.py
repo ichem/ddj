@@ -12,6 +12,8 @@ def index():
             page['about'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'apology.md')) as fd:
             page['apology'] = markdown2.markdown(fd.read())
+        with open(os.path.join(md_dir, 'extended-apology.md')) as fd:
+            page['extended_apology'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'appresources.md')) as fd:
             page['resources'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'copyright.md')) as fd:
