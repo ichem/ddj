@@ -37,38 +37,60 @@ def auth_title():
         return T(request.args(0).replace('_', ' ').title())
     return ''
 
-def log(event):
-    """ Log event / ban and send email to app admin. """
-    addr = request.env.remote_addr
-    urls = cache.ram('events-%s' % addr, lambda: [])
-    urls.append((addr, event, request.vars))
-    urls = cache.ram('events-%s' % addr, lambda: urls, 0)
-    logger.warning('%s %s from %s', event, request.vars, addr)
-    if len(urls) >= 4: # Ban user, email admin.
-        import socket
-        import xmlrpclib
+def log(event, request_url):
+    """ Log bad event. This should be queued. """
 
-        # Ban the remote addr.
+    db.define_table('bans',
+        Field('src'),
+        Field('timestamp', 'datetime', default=request.now),
+        Field('urls', 'list:string'),
+        Field('whois'))
+
+    # Update db or cache.
+    src = request.env.remote_addr
+    logger.warning('Logging %s %s from %s', event, request_url, src)
+    row = db(db.bans.src==src).select().first()
+    if row:
+        row.urls += (src, event, request_url)
+        urls = row.urls
+        row.update_record()
+    else:
+        urls = cache.ram('events-%s' % src, lambda: [])
+        urls.append((src, event, request_url))
+        urls = cache.ram('events-%s' % src, lambda: urls, 0)
+
+    # Add a db record and send an email.
+    if not row and len(urls) == 4:
+        import socket
+        from subprocess import check_output
+
+        # Add a db record.
         try:
-            ufwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            ufwd.ban(request.env.remote_addr)
+            whois = check_output('whois %s' % src, shell=True)
         except:
-            logger.exception('ufwd ban exception')
+            logger.exception('Bad whois request')
+        db.bans.insert(src=src, urls=urls, whois=whois)
 
         # Email the admin.
         hostname = socket.gethostname()
         subject = 'Ban event on %s' % hostname
-        msg = ''
-        for url in urls:
-            msg += '%s %s %s\n' % (url[0], url[1], url[2] or '')
-        mailer = Mail(
-            'localhost:25', 'noreply@%s' % hostname, tls=False)
+        mailer = Mail('localhost:25', 'noreply@%s' % hostname, tls=False)
         admin = db(db.auth_user).select().first()
         if admin and admin.email:
-            mailer.send(admin.email, subject, msg)
+            mailer.send(admin.email, subject, whois)
             logger.info('Ban email sent to %s', admin.email)
         else:
             logger.error('Error finding app admin email address')
+
+    # Do firewall.
+    if len(urls) >= 4:
+        import xmlrpclib
+
+        try:
+            ufwd = xmlrpclib.ServerProxy('http://localhost:8001')
+            ufwd.ban(src)
+        except:
+            logger.exception('ufwd ban exception')
 
 # Basic app config.
 logger = zero.getLogger('app')
@@ -80,7 +102,7 @@ cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 if request.env.server_port == '80':
     auth = Auth(db, controller='auth', secure=False)
     auth.define_tables(signature=True)
-    log('301')
+    log('301', request.env.request_uri)
     redirect(URL('poems', 'index', scheme='https'), 301)
 
 # Session/auth config.
@@ -93,5 +115,5 @@ auth.define_tables(signature=True)
 if not db(db.auth_user).isempty():
     auth.settings.actions_disabled.append('register')
 auth.settings.actions_disabled.append('request_reset_password')
-auth.settings.login_onfail.append(lambda form: log('Failed login'))
+auth.settings.login_onfail.append(lambda form: log('Failed login', '/login'))
 auth.settings.logout_next = URL(args=request.args)

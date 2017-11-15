@@ -54,6 +54,3 @@ db.define_table('poem',
     Field('published', 'datetime'),
     Field('intro_hanzi'),
     Field('intro_en'))
-
-# SSH access table.
-db.define_table('ssh', Field('addr'))
