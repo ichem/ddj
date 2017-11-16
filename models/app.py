@@ -38,7 +38,7 @@ def auth_title():
     return ''
 
 def log(event, request_url):
-    """ Log bad event. At least some of this should be queued. """
+    """ Log bad events. At least some of this should be queued. """
 
     db.define_table('bans',
         Field('src'),
@@ -65,6 +65,7 @@ def log(event, request_url):
         from subprocess import check_output
 
         # Add a db record.
+        whois = ''
         try:
             whois = check_output('whois %s' % src, shell=True)
         except:
@@ -76,8 +77,9 @@ def log(event, request_url):
         subject = 'Ban event on %s' % hostname
         mailer = Mail('localhost:25', 'noreply@%s' % hostname, tls=False)
         admin = db(db.auth_user).select().first()
+        msg = src + '\n\n' + whois
         if admin and admin.email:
-            mailer.send(admin.email, subject, whois)
+            mailer.send(admin.email, subject, msg)
             logger.info('Ban email sent to %s', admin.email)
         else:
             logger.error('Error finding app admin email address')
@@ -88,7 +90,7 @@ def log(event, request_url):
 
         try:
             fwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            fwd.blacklist(src)
+            fwd.add('blacklist', src)
         except:
             logger.exception('Blacklist error')
 
