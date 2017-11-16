@@ -12,5 +12,6 @@ def index():
         csv=False,
         editable=False,
         fields=[db.bans.src, db.bans.timestamp],
+        orderby=~db.bans.timestamp,
         searchable=False)
     return {'grid': grid}

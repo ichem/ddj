@@ -8,10 +8,10 @@ def index():
     form = FORM.confirm('Add exception')
     if form.accepted:
         try:
-            ufwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            ufwd.allow(request.env.remote_addr, 'tcp', '22')
+            fwd = xmlrpclib.ServerProxy('http://localhost:8001')
+            fwd.allow(request.env.remote_addr)
             response.flash = 'Allowing SSH from %s' % request.env.remote_addr
         except:
-            logger.exception('ufwd allow exception')
+            logger.exception('fwd allow exception')
             response.flash = 'Error allowing SSH from remote address'
     return {'form': form}

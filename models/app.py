@@ -87,10 +87,10 @@ def log(event, request_url):
         import xmlrpclib
 
         try:
-            ufwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            ufwd.ban(src)
+            fwd = xmlrpclib.ServerProxy('http://localhost:8001')
+            fwd.ban(src)
         except:
-            logger.exception('ufwd ban exception')
+            logger.exception('fwd ban exception')
 
 # Basic app config.
 logger = zero.getLogger('app')
