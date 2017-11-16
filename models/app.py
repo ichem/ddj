@@ -38,7 +38,7 @@ def auth_title():
     return ''
 
 def log(event, request_url):
-    """ Log bad event. This should be queued. """
+    """ Log bad event. At least some of this should be queued. """
 
     db.define_table('bans',
         Field('src'),
@@ -46,7 +46,7 @@ def log(event, request_url):
         Field('urls', 'list:string'),
         Field('whois'))
 
-    # Update db or cache.
+    # Update db or cache with the new request.
     src = request.env.remote_addr
     logger.warning('Logging %s %s from %s', event, request_url, src)
     row = db(db.bans.src==src).select().first()
@@ -59,7 +59,7 @@ def log(event, request_url):
         urls.append((src, event, request_url))
         urls = cache.ram('events-%s' % src, lambda: urls, 0)
 
-    # Add a db record and send an email.
+    # Blacklist the IP when a threshold is reached.
     if not row and len(urls) == 4:
         import socket
         from subprocess import check_output
@@ -88,9 +88,9 @@ def log(event, request_url):
 
         try:
             fwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            fwd.ban(src)
+            fwd.blacklist(src)
         except:
-            logger.exception('fwd ban exception')
+            logger.exception('Blacklist error')
 
 # Basic app config.
 logger = zero.getLogger('app')
