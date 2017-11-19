@@ -6,4 +6,4 @@ and to publish my English interpretations thereof.
 The app contains examples
 of how to use the [unihan](https://github.com/tessercat/unihan) database,
 of how Python interpreters might share a common logger using the [zero](https://github.com/tessercat/zero) module,
-and of how to use the [fwd](https://github.com/tessercat/fwd) XML-RPC server to manipulate firewall rules on localhost.
+and of how to use the [ipset](https://github.com/tessercat/ipset) XML-RPC server to manipulate firewall rules on localhost.
