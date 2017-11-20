@@ -1,3 +1,4 @@
+""" A module to manage whitelist/blacklist IP sets. """
 import logging
 from gluon import current
 from gluon import Field
@@ -7,10 +8,13 @@ import zero
 logger = zero.getLogger('app')
 
 class Blacklist(object):
+    """ Manage the blacklist. """
 
     def __init__(self, db):
+        """ Define ban table. """
         self.db = db
-        db.define_table('bans',
+        db.define_table(
+            'bans',
             Field('country'),
             Field('src'),
             Field('timestamp', 'datetime', default=current.request.now),
@@ -24,13 +28,13 @@ class Blacklist(object):
         # Update db or cache with the new request.
         src = current.request.env.remote_addr
         logger.warning('Logging %s %s from %s', event, request_url, src)
-        row = self.db(self.db.bans.src==src).select().first()
+        row = self.db(self.db.bans.src == src).select().first()
         if row:
             row.urls += (src, event, request_url)
             urls = row.urls
             row.update_record()
         else:
-            urls = curren.cache.ram('events-%s' % src, lambda: [])
+            urls = current.cache.ram('events-%s' % src, lambda: [])
             urls.append((src, event, request_url))
             urls = current.cache.ram('events-%s' % src, lambda: urls, 0)
 
@@ -83,9 +87,7 @@ class Blacklist(object):
                 logger.exception('Blacklist error')
 
 class Whitelist(object):
-
-    def __init__(self):
-        pass
+    """ Manage the firewall whitelist. """
 
     def add(self, addr):
         """ Add an address to the whitelist. """
