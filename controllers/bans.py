@@ -1,9 +1,9 @@
 @auth.requires_login()
 def index():
     """ Show bans table. """
-    from abuse import Bans
+    from firewall import Blacklist
 
-    Bans(db) # Inits db table.
+    Blacklist(db) # Inits db table.
     grid = SQLFORM.grid(
         db.bans,
         create=False,

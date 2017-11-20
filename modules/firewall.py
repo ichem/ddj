@@ -6,7 +6,7 @@ import zero
 
 logger = zero.getLogger('app')
 
-class Bans(object):
+class Blacklist(object):
 
     def __init__(self, db):
         self.db = db
@@ -18,6 +18,8 @@ class Bans(object):
             Field('whois'))
 
     def log(self, event, request_url):
+        """ Log a blacklist event and ban the address when a threshold
+        is reached. """
 
         # Update db or cache with the new request.
         src = current.request.env.remote_addr
@@ -79,3 +81,23 @@ class Bans(object):
                 fwd.add('blacklist', src)
             except:
                 logger.exception('Blacklist error')
+
+class Whitelist(object):
+
+    def __init__(self):
+        pass
+
+    def add(self, addr):
+        """ Add an address to the whitelist. """
+        import xmlrpclib
+
+        try:
+            fwd = xmlrpclib.ServerProxy('http://localhost:8001')
+            fwd.add('whitelist', addr)
+            current.response.flash = 'Whitelisted %s' % addr
+        except Exception, err:
+            if 'already added' in str(err):
+                current.response.flash = 'Already whitelisted %s' % addr
+            else:
+                logger.exception('Whitelist error')
+                current.response.flash = 'Error whitelisting address'

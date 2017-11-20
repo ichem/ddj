@@ -39,10 +39,10 @@ def auth_title():
 
 def log(event, request_url):
     """ Log bannable events. """
-    from abuse import Bans
+    from firewall import Blacklist
 
-    banner = Bans(db)
-    banner.log(event, request_url)
+    blacklist = Blacklist(db)
+    blacklist.log(event, request_url)
 
 # Basic app config.
 logger = zero.getLogger('app')
