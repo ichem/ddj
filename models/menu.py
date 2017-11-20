@@ -24,8 +24,8 @@ def app_navbar():
     response.auth_navbar = auth.navbar(mode='dropdown')
     menu = response.auth_navbar.element('.dropdown-menu')
     if auth.user_id:
-        menu.insert(0, LI(A('Whitelist', _href=URL('whitelist', 'index'))))
         menu.insert(0, LI(A('Blacklist', _href=URL('blacklist', 'index'))))
+        menu.insert(0, LI(A('Whitelist', _href=URL('whitelist', 'index'))))
         menu.insert(0, LI('', _class='divider'))
     if request.controller != 'unihan':
         menu.insert(0, LI(A('Unihan Dump', _href=URL('unihan', 'dump'))))

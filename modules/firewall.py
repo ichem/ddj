@@ -42,7 +42,7 @@ class Blacklist(object):
         org = 'Unknown'
         country = 'Unknown'
         try:
-            whois = check_output('whois -B %s' % src, shell=True)
+            whois = check_output('whois %s' % src, shell=True)
             for line in whois.splitlines():
                 lower = line.lower()
 
