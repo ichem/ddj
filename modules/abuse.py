@@ -8,9 +8,8 @@ logger = zero.getLogger('app')
 
 class Bans(object):
 
-    def __init__(self, db, cache):
+    def __init__(self, db):
         self.db = db
-        self.cache = cache
         db.define_table('bans',
             Field('country'),
             Field('src'),
@@ -29,9 +28,9 @@ class Bans(object):
             urls = row.urls
             row.update_record()
         else:
-            urls = self.cache.ram('events-%s' % src, lambda: [])
+            urls = curren.cache.ram('events-%s' % src, lambda: [])
             urls.append((src, event, request_url))
-            urls = self.cache.ram('events-%s' % src, lambda: urls, 0)
+            urls = current.cache.ram('events-%s' % src, lambda: urls, 0)
 
         # Blacklist the IP when a threshold is reached.
         # TODO schedule all that follows.

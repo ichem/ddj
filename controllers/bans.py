@@ -3,7 +3,7 @@ def index():
     """ Show bans table. """
     from abuse import Bans
 
-    Bans(db, cache) # Inits db table.
+    Bans(db) # Inits db table.
     grid = SQLFORM.grid(
         db.bans,
         create=False,

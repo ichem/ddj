@@ -41,7 +41,7 @@ def log(event, request_url):
     """ Log bannable events. """
     from abuse import Bans
 
-    banner = Bans(db, cache)
+    banner = Bans(db)
     banner.log(event, request_url)
 
 # Basic app config.
