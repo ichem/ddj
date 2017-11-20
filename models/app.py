@@ -38,61 +38,11 @@ def auth_title():
     return ''
 
 def log(event, request_url):
-    """ Log bad events. At least some of this should be queued. """
+    """ Log bannable events. """
+    from abuse import Bans
 
-    db.define_table('bans',
-        Field('src'),
-        Field('timestamp', 'datetime', default=request.now),
-        Field('urls', 'list:string'),
-        Field('whois'))
-
-    # Update db or cache with the new request.
-    src = request.env.remote_addr
-    logger.warning('Logging %s %s from %s', event, request_url, src)
-    row = db(db.bans.src==src).select().first()
-    if row:
-        row.urls += (src, event, request_url)
-        urls = row.urls
-        row.update_record()
-    else:
-        urls = cache.ram('events-%s' % src, lambda: [])
-        urls.append((src, event, request_url))
-        urls = cache.ram('events-%s' % src, lambda: urls, 0)
-
-    # Blacklist the IP when a threshold is reached.
-    if not row and len(urls) == 4:
-        import socket
-        from subprocess import check_output
-
-        # Add a db record.
-        whois = ''
-        try:
-            whois = check_output('whois %s' % src, shell=True)
-        except:
-            logger.exception('Bad whois request')
-        db.bans.insert(src=src, urls=urls, whois=whois)
-
-        # Email the admin.
-        hostname = socket.gethostname()
-        subject = 'Ban event on %s' % hostname
-        mailer = Mail('localhost:25', 'noreply@%s' % hostname, tls=False)
-        admin = db(db.auth_user).select().first()
-        msg = src + '\n\n' + whois
-        if admin and admin.email:
-            mailer.send(admin.email, subject, msg)
-            logger.info('Ban email sent to %s', admin.email)
-        else:
-            logger.error('Error finding app admin email address')
-
-    # Do firewall.
-    if len(urls) >= 4:
-        import xmlrpclib
-
-        try:
-            fwd = xmlrpclib.ServerProxy('http://localhost:8001')
-            fwd.add('blacklist', src)
-        except:
-            logger.exception('Blacklist error')
+    banner = Bans(db, cache)
+    banner.log(event, request_url)
 
 # Basic app config.
 logger = zero.getLogger('app')
@@ -102,6 +52,7 @@ cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 
 # Log and redirect HTTP requests to HTTPS.
 if request.env.server_port == '80':
+    logger.info('aye')
     auth = Auth(db, controller='auth', secure=False)
     auth.define_tables(signature=True)
     log('301', request.env.request_uri)
