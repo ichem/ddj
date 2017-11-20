@@ -8,7 +8,7 @@ import zero
 logger = zero.getLogger('app')
 
 class Blacklist(object):
-    """ Manage the blacklist. """
+    """ Manage the blacklist IP set. """
 
     def __init__(self, db):
         """ Define ban table. """
@@ -87,7 +87,7 @@ class Blacklist(object):
                 logger.exception('Blacklist error')
 
 class Whitelist(object):
-    """ Manage the firewall whitelist. """
+    """ Manage the whitelist IP set. """
 
     def add(self, addr):
         """ Add an address to the whitelist. """
