@@ -1,19 +1,16 @@
-import os
-from gluon.contrib.markdown import markdown2
-
-
 def index():
     """ Return a dict for the about view. """
 
     def about_page():
+        import os
+        from gluon.contrib.markdown import markdown2
+
         md_dir =  '/opt/ddj/book/markdown'
         page = {}
         with open(os.path.join(md_dir, 'about.md')) as fd:
             page['about'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'apology.md')) as fd:
             page['apology'] = markdown2.markdown(fd.read())
-        with open(os.path.join(md_dir, 'extended-apology.md')) as fd:
-            page['extended_apology'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'appresources.md')) as fd:
             page['resources'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'copyright.md')) as fd:
