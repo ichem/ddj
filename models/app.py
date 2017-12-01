@@ -2,7 +2,6 @@
 import os
 from gluon.contrib.memcache import MemcacheClient
 from gluon.tools import Auth
-from gluon.tools import Mail
 import zero
 
 
@@ -52,7 +51,6 @@ cache.ram = MemcacheClient(request, ['127.0.0.1:11211'])
 
 # Log and redirect HTTP requests to HTTPS.
 if request.env.server_port == '80':
-    logger.info('aye')
     auth = Auth(db, controller='auth', secure=False)
     auth.define_tables(signature=True)
     log('301', request.env.request_uri)

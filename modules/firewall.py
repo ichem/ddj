@@ -1,5 +1,4 @@
 """ A module to manage whitelist/blacklist IP sets. """
-import logging
 from gluon import current
 from gluon import Field
 import zero
