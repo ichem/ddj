@@ -35,8 +35,6 @@ def app_navbar():
         menu.insert(0, LI(A('Manage Poems', _href=URL('poems', 'manage'))))
     if request.controller != 'poems':
         menu.insert(0, LI(A('Poems', _href=URL('poems', 'index'))))
-    if request.controller != 'manifesto':
-        menu.insert(0, LI(A('Manifesto', _href=URL('manifesto', 'index'))))
     if request.controller != 'about':
         menu.insert(0, LI(A('About', _href=URL('about', 'index'))))
     if 'Log In' in response.auth_navbar.element('.dropdown-toggle'):
