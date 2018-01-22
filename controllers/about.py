@@ -17,8 +17,6 @@ def index():
             page['copyright'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'references.md')) as fd:
             page['references'] = markdown2.markdown(fd.read())
-        with open(os.path.join(md_dir, 'saints.md')) as fd:
-            page['saints'] = markdown2.markdown(fd.read())
         with open(os.path.join(md_dir, 'contact.md')) as fd:
             page['contact'] = markdown2.markdown(fd.read())
         return page
