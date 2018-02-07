@@ -187,22 +187,34 @@ def pinyin_string(chars, uhdb):
 def string_block(chars, strip, uhdb):
     """ Transform a string of characters into a block of elements. Return
     a DIVs of clickable info-block elements. """
-    info = []
-    chars = u' '.join(chars.decode('utf-8').split()) # Normalize whitespace.
-    for char in chars:
-        codepoint = ord(char)
-        if char == u' ':
-            info.append(char)
-        elif codepoint == 9633: # Comparison with u'□' doesn't work.
-            info.append(SPAN(char, _class='uh-char'))
-        else:
-            row = uhdb.character[codepoint]
-            if row:
-                info.append(_uh_repr(row))
+
+    def process_line():
+        line_info = []
+        chars = u' '.join(line.split()) # Normalize whitespace.
+        for char in chars:
+            codepoint = ord(char)
+            if char == u' ':
+                line_info.append(char)
+            elif codepoint == 9633: # Comparison with u'□' doesn't work.
+                line_info.append(SPAN(char, _class='uh-char'))
             else:
-                if strip:
-                    if info and info[-1] != u' ':
-                        info.append(u' ')
+                row = uhdb.character[codepoint]
+                if row:
+                    line_info.append(_uh_repr(row))
                 else:
-                    info.append(SPAN(char, _class='uh-char'))
-    return DIV(info, _class='uh-block')
+                    if strip:
+                        if line_info and line_info[-1] != u' ':
+                            line_info.append(u' ')
+                    else:
+                        line_info.append(SPAN(char, _class='uh-char'))
+        return line_info
+
+    info = []
+    for line in chars.decode('utf-8').splitlines():
+        if strip:
+            info += process_line()
+        else:
+            info.append(DIV(process_line(), _class='uh-block'))
+    if strip:
+        return DIV(info, _class='uh-block')
+    return DIV(info)

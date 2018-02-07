@@ -42,9 +42,6 @@ def _thumb(row, cls, title=None):
 
 def chapter(poem, db, uhdb):
     """ Return a bootstrap row for a poem row. """
-    from unihan import pinyin_string
-    from unihan import string_block
-
     if not poem:
         raise Exception('No such poem')
     qry = ((db.verse.book==1) & (db.verse.chapter==poem.chapter))

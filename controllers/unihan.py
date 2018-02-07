@@ -27,10 +27,10 @@ def dump():
 
         try:
             chars = string_block(form.vars.hanzi_text, form.vars.strip, uhdb)
-            chars['_style'] = 'padding-bottom:2em;'
         except:
             logger.exception("Error processing characters: %s" % request.vars)
             chars = DIV('Error processing characters')
+        chars['_style'] = 'padding-bottom:2em;'
     return {'chars': chars, 'form': form}
 
 @_service.run
